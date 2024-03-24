@@ -2,24 +2,28 @@ package com.koreatech.hangill.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
+import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
+@Setter
 public class Edge {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "edge_id")
     private Long id;
 
     // mm단위
     private Long distance;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = LAZY, cascade = PERSIST)
     @JoinColumn(name = "start_node_id")
     private Node startNode;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = LAZY, cascade = PERSIST)
     @JoinColumn(name = "end_node_id")
     private Node endNode;
 
