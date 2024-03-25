@@ -39,14 +39,14 @@ public class Building {
     private BigDecimal longitude;
 
 
-    @OneToMany(mappedBy = "building", cascade = ALL)
+    @OneToMany(mappedBy = "building", cascade = ALL, orphanRemoval = true)
     private List<Node> nodes = new ArrayList<>();
 
 
     /**
      * 이거 조회시 사용할 경우 쿼리 너무 많이 나감. 성능 생각해서 조회시 사용하지 말자
      */
-    @OneToMany(mappedBy = "building", cascade = ALL)
+    @OneToMany(mappedBy = "building", cascade = ALL, orphanRemoval = true)
     private List<Edge> edges = new ArrayList<>();
 
     // 양방향 연관 관계 편의 메소드.

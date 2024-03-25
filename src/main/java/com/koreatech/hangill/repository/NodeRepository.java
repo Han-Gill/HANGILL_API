@@ -57,5 +57,9 @@ public class NodeRepository {
             .getSingleResult();
     }
 
+    public Node findOne(Long id) {
+        return em.find(Node.class, id);
+    }
+
 
 }

@@ -2,14 +2,12 @@ package com.koreatech.hangill.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
 public class Edge {
     @Id
     @GeneratedValue

@@ -5,10 +5,13 @@ import com.koreatech.hangill.domain.Edge;
 import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.*;
+import com.koreatech.hangill.exception.CannotDeleteNodeException;
 import com.koreatech.hangill.repository.BuildingRepository;
 import com.koreatech.hangill.repository.EdgeRepository;
+import com.koreatech.hangill.repository.NodeRepository;
 import com.koreatech.hangill.service.BuildingManagingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +23,16 @@ import java.util.Map;
 /**
  * 건물 데이터 삽입시 사용하는 Service
  */
+@Slf4j
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class BuildingManagingServiceImpl implements BuildingManagingService {
     private final BuildingRepository buildingRepository;
     private final NodeServiceImpl nodeService;
     private final EdgeRepository edgeRepository;
+
+    private final NodeRepository nodeRepository;
 
     /**
      * 건물을 저장
@@ -38,6 +44,7 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
         Building building = new Building(request);
         validateDuplicatedBuilding(building.getName());
         buildingRepository.save(building);
+        log.info("{}", building.getDescription());
         return building.getId();
     }
 
@@ -59,10 +66,10 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
         nodeService.validateDuplicatedNode(
                 new NodeSearch(
                         building.getId(),
-                        request.getCreateNodeRequest().getNumber(),
-                        request.getCreateNodeRequest().getFloor())
+                        request.getNode().getNumber(),
+                        request.getNode().getFloor())
         );
-        Node node = new Node(request.getCreateNodeRequest());
+        Node node = new Node(request.getNode());
         building.addNode(node);
     }
 
@@ -88,13 +95,31 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
         building.addEdge(Edge.createEdge(startNode, endNode, request.getDistance()));
     }
 
-    public void deleteEdge(DeleteEdgeRequest request) {
-
+    public void deleteEdge(Long buildingId, Long edgeId) {
+        Building building = buildingRepository.findOne(buildingId);
+        building.getEdges().remove(edgeRepository.findOne(edgeId));
     }
 
-    public void deleteNode(DeleteNodeRequest request) {
-
+    public void deleteNode(Long buildingId, Long nodeId) {
+        List<Edge> edges = edgeRepository.findAll(buildingId);
+        for (Edge edge : edges) {
+            if (edge.getStartNode().getId().equals(nodeId)) {
+                throw new CannotDeleteNodeException(
+                        edge.getStartNode().getNumber() + "번 노드를 출발 노드로 하는 엣지가 있기에 해당 노드를 삭제할 수 없음."
+                );
+            }
+            if (edge.getEndNode().getId().equals(nodeId)) {
+                throw new CannotDeleteNodeException(
+                        edge.getEndNode().getNumber() + "번 노드를 도착 노드로 하는 엣지가 있기에 해당 노드를 삭제할 수 없음."
+                );
+            }
+        }
+        Building building = buildingRepository.findOne(buildingId);
+        Node node = nodeRepository.findOne(nodeId);
+        building.getNodes().remove(node);
     }
+
+
 
     /**
      * 건물의 노드 번호로 구성된 그래프 반환.
@@ -118,6 +143,8 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
         }
         return graph;
     }
+
+
 
 
 

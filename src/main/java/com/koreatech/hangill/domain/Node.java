@@ -2,6 +2,7 @@ package com.koreatech.hangill.domain;
 
 import com.koreatech.hangill.dto.request.CreateNodeRequest;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,9 +14,7 @@ import static jakarta.persistence.FetchType.LAZY;
  */
 @Entity
 @Getter
-@Setter
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Node {
     public Node(CreateNodeRequest request) {
         this.number = request.getNumber();

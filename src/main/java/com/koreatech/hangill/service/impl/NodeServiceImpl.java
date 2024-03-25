@@ -7,7 +7,6 @@ import com.koreatech.hangill.dto.request.AddNodeToBuildingRequest;
 import com.koreatech.hangill.exception.NoSuchNodeException;
 import com.koreatech.hangill.repository.BuildingRepository;
 import com.koreatech.hangill.repository.NodeRepository;
-import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,12 +29,12 @@ public class NodeServiceImpl {
         validateDuplicatedNode(
                 new NodeSearch(
                         request.getBuildingId(),
-                        request.getCreateNodeRequest().getNumber(),
-                        request.getCreateNodeRequest().getFloor()
+                        request.getNode().getNumber(),
+                        request.getNode().getFloor()
                 )
         );
 
-        Node node = new Node(request.getCreateNodeRequest());
+        Node node = new Node(request.getNode());
         node.changeBuilding(building);
         nodeRepository.save(node);
         return node.getId();

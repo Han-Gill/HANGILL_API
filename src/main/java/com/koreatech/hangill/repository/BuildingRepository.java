@@ -36,5 +36,14 @@ public class BuildingRepository {
                 .getResultList();
     }
 
+    public List<Building> findAll() {
+        String query = """
+                SELECT b
+                FROM Building b
+                """;
+        return em.createQuery(query, Building.class)
+                .getResultList();
+    }
+
 
 }

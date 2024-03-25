@@ -18,7 +18,7 @@ public class EdgeRepository {
         em.persist(edge);
     }
 
-    public Node findOne(Long id) {return em.find(Node.class, id);}
+    public Edge findOne(Long id) {return em.find(Edge.class, id);}
 
     public List<Edge> findAll(DeleteEdgeRequest request) {
         String query = """
