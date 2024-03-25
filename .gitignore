@@ -44,3 +44,7 @@ out/
 ._.DS_Store
 **/.DS_Store
 **/._.DS_Store
+
+
+### ADMIN ###
+/src/main/java/com/koreatech/hangill/controller/BuildingManagingController.java
