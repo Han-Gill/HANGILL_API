@@ -1,19 +1,20 @@
-package com.koreatech.hangill.dto.response;
+package com.koreatech.hangill.dto;
 
 import com.koreatech.hangill.domain.Node;
-import com.koreatech.hangill.domain.NodeType;
 import lombok.Data;
 
 @Data
-public class NodeResponse {
-    public NodeResponse(Node node) {
+public class NodeDto {
+    public NodeDto(Node node) {
         this.id = node.getId();
         this.number = node.getNumber();
         this.floor = node.getFloor();
-        this.type = node.getType();
+        this.name = node.getName();
+        this.description = node.getDescription();
     }
     private Long id;
     private Integer number;
     private Integer floor;
-    private NodeType type;
+    private String name;
+    private String description;
 }

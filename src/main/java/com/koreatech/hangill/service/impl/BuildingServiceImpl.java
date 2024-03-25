@@ -8,6 +8,7 @@ import com.koreatech.hangill.dto.request.ShortestPathRequest;
 import com.koreatech.hangill.dto.response.ShortestPathResponse;
 import com.koreatech.hangill.repository.BuildingRepository;
 import com.koreatech.hangill.repository.EdgeRepository;
+import com.koreatech.hangill.service.BuildingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class BuildingServiceImpl {
+public class BuildingServiceImpl implements BuildingService {
 
     private final BuildingRepository buildingRepository;
     private final EdgeRepository edgeRepository;
