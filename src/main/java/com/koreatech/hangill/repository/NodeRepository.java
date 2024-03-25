@@ -48,7 +48,7 @@ public class NodeRepository {
             FROM Node n JOIN n.building b
                     ON b.id = :buildingId
                     AND n.number = :number
-                    AND n.floor = :floor     
+                    AND n.floor = :floor 
             """;
     return em.createQuery(query, Node.class)
             .setParameter("buildingId", nodeSearch.getBuildingId())

@@ -60,25 +60,6 @@ public class Building {
         this.edges.add(edge);
     }
 
-    // 그래프 생성.
-
-//    /**
-//     * 추후 Fetch Join으로 최적화 고려
-//     */
-//    public Map<Long, List<Long[]>> createGraph() {
-//        Map<Long, List<Long[]>> graph = new HashMap<>();
-//        for (Node node : nodes) {
-//            graph.put(node.getId(), new ArrayList<>());
-//        }
-//        for (Edge edge : edges) {
-//            Long start = Long.valueOf(edge.getStartNode().getNumber());
-//            Long end = Long.valueOf(edge.getEndNode().getNumber());
-//            Long weight = edge.getDistance();
-//            graph.get(start).add(new Long[]{end, weight});
-//            graph.get(end).add(new Long[]{start, weight});
-//        }
-//        return graph;
-//    }
 
 
 }

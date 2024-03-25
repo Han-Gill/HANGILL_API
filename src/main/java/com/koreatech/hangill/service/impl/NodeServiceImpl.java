@@ -68,8 +68,8 @@ public class NodeServiceImpl {
     public Node findOne(NodeSearch nodeSearch) {
         try {
             return nodeRepository.findOne(nodeSearch);
-        }catch (NoResultException e) {
-            throw new NoSuchNodeException("헤당 노드가 없습니다!");
+        }catch (Exception e) {
+            throw new NoSuchNodeException("건물에 헤당 노드가 없습니다!");
         }
     }
 

@@ -8,9 +8,11 @@ import com.koreatech.hangill.dto.request.AddEdgeToBuildingRequest;
 import com.koreatech.hangill.dto.request.AddNodeToBuildingRequest;
 import com.koreatech.hangill.dto.request.CreateBuildingRequest;
 import com.koreatech.hangill.dto.request.CreateNodeRequest;
+import com.koreatech.hangill.exception.NoSuchNodeException;
 import com.koreatech.hangill.repository.BuildingRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,13 +24,15 @@ import java.util.List;
 
 @SpringBootTest
 @Transactional
-@Rollback(value = false)
 class BuildingManagingServiceImplTest {
 
     @Autowired
     BuildingManagingServiceImpl buildingService;
     @Autowired
     BuildingRepository buildingRepository;
+
+    @Autowired
+    BuildingManagingServiceImpl buildingManagingService;
     @PersistenceContext
     EntityManager em;
 
@@ -126,5 +130,100 @@ class BuildingManagingServiceImplTest {
         );
         return buildingId;
     }
+
+    @Test
+    public void 엣지_예외_테스트() throws Exception {
+        //given
+        Long buildingId = buildGraph("공학 1관");
+
+        Assertions.assertThrows(NoSuchNodeException.class, () -> {
+            buildingManagingService.addEdge(
+                    new AddEdgeToBuildingRequest(
+                            buildingId, 1, 1, 6, 3, 100L)
+
+            );
+        });
+        //when
+
+        //then
+
+
+    }
+
+    private Long buildGraph(String buildingName) {
+        Long buildingId = buildingManagingService.saveBuilding(new CreateBuildingRequest(
+                buildingName,
+                "컴공", null, null
+        ));
+
+
+        buildingManagingService.addNode(
+                new AddNodeToBuildingRequest(
+                        buildingId,
+                        new CreateNodeRequest(
+                                1, null, null, NodeType.ENTRANCE, 1
+                        )
+                )
+        );
+        buildingManagingService.addNode(
+                new AddNodeToBuildingRequest(
+                        buildingId,
+                        new CreateNodeRequest(
+                                2, null, null, NodeType.ROOM, 1
+                        )
+                )
+        );
+        buildingManagingService.addNode(
+                new AddNodeToBuildingRequest(
+                        buildingId,
+                        new CreateNodeRequest(
+                                3, null, null, NodeType.ROAD, 1
+                        )
+                )
+        );
+        buildingManagingService.addNode(
+                new AddNodeToBuildingRequest(
+                        buildingId,
+                        new CreateNodeRequest(
+                                4, null, null, NodeType.ROAD, 1
+                        )
+                )
+        );
+        buildingManagingService.addNode(
+                new AddNodeToBuildingRequest(
+                        buildingId,
+                        new CreateNodeRequest(
+                                5, null, null, NodeType.ROOM, 1
+                        )
+                )
+        );
+        buildingManagingService.addEdge(new AddEdgeToBuildingRequest(
+                buildingId, 1, 1, 2, 1, 2L
+        ));
+        buildingManagingService.addEdge(new AddEdgeToBuildingRequest(
+                buildingId, 1, 1, 3, 1, 3L
+        ));
+        buildingManagingService.addEdge(new AddEdgeToBuildingRequest(
+                buildingId, 1, 1, 4, 1, 1L
+        ));
+        buildingManagingService.addEdge(new AddEdgeToBuildingRequest(
+                buildingId, 1, 1, 5, 1, 10L
+        ));
+        buildingManagingService.addEdge(new AddEdgeToBuildingRequest(
+                buildingId, 2, 1, 4, 1, 2L
+        ));
+        buildingManagingService.addEdge(new AddEdgeToBuildingRequest(
+                buildingId, 3, 1, 4, 1, 1L
+        ));
+        buildingManagingService.addEdge(new AddEdgeToBuildingRequest(
+                buildingId, 3, 1, 5, 1, 1L
+        ));
+        buildingManagingService.addEdge(new AddEdgeToBuildingRequest(
+                buildingId, 4, 1, 5, 1, 3L
+        ));
+
+        return buildingId;
+    }
+
 
 }

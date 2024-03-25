@@ -35,4 +35,6 @@ public class BuildingRepository {
                 .setParameter("name", name)
                 .getResultList();
     }
+
+
 }

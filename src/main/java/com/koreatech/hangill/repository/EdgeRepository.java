@@ -1,6 +1,7 @@
 package com.koreatech.hangill.repository;
 
 import com.koreatech.hangill.domain.Edge;
+import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.dto.request.DeleteEdgeRequest;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class EdgeRepository {
         em.persist(edge);
     }
 
+    public Node findOne(Long id) {return em.find(Node.class, id);}
 
     public List<Edge> findAll(DeleteEdgeRequest request) {
         String query = """
@@ -38,6 +40,20 @@ public class EdgeRepository {
                 .setParameter("startNodeFloor", request.getStartNodeFloor())
                 .setParameter("endNodeNumber", request.getEndNodeNumber())
                 .setParameter("endNodeFloor", request.getEndNodeFloor())
+                .getResultList();
+    }
+
+    public List<Edge> findAll(Long buildingId) {
+        String query = """
+                SELECT e
+                FROM Edge e JOIN FETCH e.building b
+                            JOIN FETCH e.startNode sn
+                            JOIN FETCH e.endNode en
+                WHERE b.id = :buildingId
+                """;
+
+        return em.createQuery(query, Edge.class)
+                .setParameter("buildingId", buildingId)
                 .getResultList();
     }
 

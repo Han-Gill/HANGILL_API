@@ -44,4 +44,12 @@ public class Edge {
     public void changeBuilding(Building building) {
         this.building = building;
     }
+
+    public Double getDistanceToM() {
+        return distance / (double)1000;
+    }
+
+    public Double getDistanceToKM() {
+        return distance / (double)1_000_000;
+    }
 }
