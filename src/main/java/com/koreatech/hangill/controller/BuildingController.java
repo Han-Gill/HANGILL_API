@@ -48,7 +48,7 @@ public class BuildingController {
             @PathVariable Long endNodeId) {
         Map<String, Object> resultMap = new HashMap<>();
         try {
-            ShortestPathResponse path = buildingService.dijkstra(
+            ShortestPathResponse path = buildingService.findPath(
                     new ShortestPathRequest(buildingId, startNodeId, endNodeId)
             );
             resultMap.put("path", path);

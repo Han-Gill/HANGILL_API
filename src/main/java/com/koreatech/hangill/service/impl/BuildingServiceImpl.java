@@ -77,7 +77,7 @@ public class BuildingServiceImpl implements BuildingService {
      * @param request : 건물 id, 출발 노드 id, 도착 노드 id
      * @return 최단 경로와 거리를 담은 객체
      */
-    public ShortestPathResponse dijkstra(ShortestPathRequest request) {
+    public ShortestPathResponse findPath(ShortestPathRequest request) {
         Long INF = Long.MAX_VALUE;
         List<Node> nodes = buildingRepository.findOne(request.getBuildingId()).getNodes();
         Map<Long, Long> distance = new HashMap<>();
