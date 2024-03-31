@@ -1,6 +1,6 @@
 package com.koreatech.hangill.exception;
 
-public class CannotDeleteNodeException extends RuntimeException{
+public class CannotDeleteNodeException extends RuntimeException {
     public CannotDeleteNodeException() {
 
     }

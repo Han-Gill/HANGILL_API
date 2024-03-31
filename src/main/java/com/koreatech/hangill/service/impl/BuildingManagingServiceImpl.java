@@ -119,6 +119,12 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
         building.getNodes().remove(node);
     }
 
+    public void deleteBuilding(Long buildingId) {
+        Building building = buildingRepository.findOne(buildingId);
+        buildingRepository.deleteOne(building);
+    }
+
+
 
 
     /**
