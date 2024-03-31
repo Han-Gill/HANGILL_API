@@ -15,4 +15,6 @@ public interface BuildingManagingService {
 
     void deleteEdge(Long buildingId, Long edgeId);
     void deleteNode(Long buildingId, Long nodeId);
+
+    void deleteBuilding(Long buildingId);
 }
