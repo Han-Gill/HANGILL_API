@@ -1,21 +1,31 @@
 package com.koreatech.hangill.domain;
 
+
+import com.koreatech.hangill.dto.request.CreateBuildingRequest;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static jakarta.persistence.CascadeType.ALL;
 
 @Entity
-@Getter @Setter
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Building {
-    @Id @GeneratedValue
+    public Building(CreateBuildingRequest request) {
+        this.name = request.getName();
+        this.description = request.getDescription();
+        this.latitude = request.getLatitude();
+        this.longitude = request.getLongitude();
+    }
+
+    @Id
+    @GeneratedValue
     @Column(name = "building_id")
     private Long id;
 
@@ -28,45 +38,28 @@ public class Building {
     @Column(precision = 18, scale = 10)
     private BigDecimal longitude;
 
-    // Edge의 생명주기를 Building에서 관리
-    @OneToMany(mappedBy = "building", cascade = ALL)
-    private List<Edge> edges = new ArrayList<>();
 
-    // Node의 생명 주기를 Building에서 관리
-    @OneToMany(mappedBy = "building", cascade = ALL)
+    @OneToMany(mappedBy = "building", cascade = ALL, orphanRemoval = true)
     private List<Node> nodes = new ArrayList<>();
 
 
-    // 양방향 연관 관계 편의 메소드
-    public void addEdge(Edge edge) {
-        this.edges.add(edge);
-        edge.changeBuilding(this);
-    }
-    // 양방향 연관 관계 편의 메소드
-    public void addNode(Node node) {
-        this.nodes.add(node);
-        node.changeBuilding(this);
-    }
-
-    // 그래프 생성.
-
     /**
-     * 추후 Fetch Join으로 최적화 고려
+     * 이거 조회시 사용할 경우 쿼리 너무 많이 나감. 성능 생각해서 조회시 사용하지 말자
      */
-    public Map<Long, List<Long[]>> createGraph() {
-        Map<Long, List<Long[]>> graph = new HashMap<>();
-        for (Node node : nodes) {
-            graph.put(node.getId(), new ArrayList<>());
-        }
-        for (Edge edge : edges) {
-            Long start = edge.getStartNode().getId();
-            Long end = edge.getEndNode().getId();
-            Long weight = edge.getDistance();
-            graph.get(start).add(new Long[] {end, weight});
-            graph.get(end).add(new Long[] {start, weight});
-        }
-        return graph;
+    @OneToMany(mappedBy = "building", cascade = ALL, orphanRemoval = true)
+    private List<Edge> edges = new ArrayList<>();
+
+    // 양방향 연관 관계 편의 메소드.
+    public void addNode(Node node) {
+        node.changeBuilding(this);
+        this.nodes.add(node);
     }
+    // 양방향 연관 관계 편의 메소드.
+    public void addEdge(Edge edge) {
+        edge.changeBuilding(this);
+        this.edges.add(edge);
+    }
+
 
 
 }
