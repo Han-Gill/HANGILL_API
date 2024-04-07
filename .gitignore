@@ -48,3 +48,4 @@ out/
 
 ### ADMIN ###
 /src/main/java/com/koreatech/hangill/controller/BuildingManagingController.java
+/src/main/java/com/koreatech/hangill/controller/AccessPointManagingController.java

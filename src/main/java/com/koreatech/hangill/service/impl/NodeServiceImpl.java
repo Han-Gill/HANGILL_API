@@ -1,57 +1,46 @@
 package com.koreatech.hangill.service.impl;
 
-import com.koreatech.hangill.domain.Building;
+import com.koreatech.hangill.domain.AccessPoint;
+import com.koreatech.hangill.domain.Fingerprint;
 import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.dto.NodeSearch;
-import com.koreatech.hangill.dto.request.AddNodeToBuildingRequest;
+import com.koreatech.hangill.dto.request.BuildFingerprintRequest;
+import com.koreatech.hangill.dto.request.SignalRequest;
 import com.koreatech.hangill.exception.NoSuchNodeException;
-import com.koreatech.hangill.repository.BuildingRepository;
+import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.koreatech.hangill.domain.OperationStatus.*;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class NodeServiceImpl {
     private final NodeRepository nodeRepository;
-    private final BuildingRepository buildingRepository;
-
-    /**
-     * 건물에 노드 추가
-     * @param request : 건물 ID, 노드 정보
-     * @return 저장한 노드 ID
-     */
-    public Long addNodeToBuilding(AddNodeToBuildingRequest request) {
-        Building building = buildingRepository.findOne(request.getBuildingId());
-        // 중복 노드 검증.
-        validateDuplicatedNode(
-                new NodeSearch(
-                        request.getBuildingId(),
-                        request.getNode().getNumber(),
-                        request.getNode().getFloor()
-                )
-        );
-
-        Node node = new Node(request.getNode());
-        node.changeBuilding(building);
-        nodeRepository.save(node);
-        return node.getId();
-    }
+    private final AccessPointRepository accessPointRepository;
 
     /**
      * 중복 노드 검증
+     *
      * @param nodeSearch : 건물 ID, 층, 번호
      */
 
     @Transactional(readOnly = true)
     public void validateDuplicatedNode(NodeSearch nodeSearch) {
-        if (nodeRepository.findAll(nodeSearch).size() > 0) throw new IllegalStateException("같은 건물의 같은 층에 해당 번호의 노드가 존재합니다.");
+        if (nodeRepository.findAll(nodeSearch).size() > 0)
+            throw new IllegalStateException("같은 건물의 같은 층에 해당 번호의 노드가 존재합니다.");
     }
 
     /**
      * 노드가 있는지 검증
+     *
      * @param nodeSearch : 건물 ID, 층, 번호
      */
     @Transactional(readOnly = true)
@@ -60,16 +49,44 @@ public class NodeServiceImpl {
     }
 
     /**
-     * 조건을 통해 노드 한개 조회
+     * 조건을 통해 노드 한 개 조회
+     *
      * @param nodeSearch : 건물 Id, 층, 번호
      * @return 노드
      */
     public Node findOne(NodeSearch nodeSearch) {
         try {
             return nodeRepository.findOne(nodeSearch);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new NoSuchNodeException("건물에 헤당 노드가 없습니다!");
         }
+    }
+
+    /**
+     * Node의 Fingerprint를 구축하는 메소드
+     *
+     * @param request : 노드 ID, wifi 신호목록
+     *                1. AP filtering : 해당 건물에 있는 가동중인 AP들로 필터링
+     *                2. node의 Fingerprint로 추가
+     * 효율성 고려하지 않은 코드임. 추후 최적화 고려 필요
+     */
+    public void buildFingerPrint(BuildFingerprintRequest request) {
+        Node node = nodeRepository.findOne(request.getNodeId());
+        List<Fingerprint> fingerprints = new ArrayList<>();
+        for (SignalRequest signal : request.getSignals()) {
+            // 해당 건물의 해당 mac 주소를 가진 운용중인 AP를 찾기
+            List<AccessPoint> accessPoints = accessPointRepository.findAll(node.getBuilding().getId(), signal.getMac(), RUNNING);
+            // 없다면 고려 X
+            if (accessPoints.size() == 0) continue;
+
+            fingerprints.add(new Fingerprint(
+                    accessPoints.get(0),
+                    signal.getRssi(),
+                    LocalDateTime.now()
+            ));
+        }
+
+        node.buildFingerprints(fingerprints);
     }
 
 

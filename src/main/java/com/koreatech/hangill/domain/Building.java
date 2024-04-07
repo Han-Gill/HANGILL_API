@@ -23,9 +23,15 @@ public class Building {
         this.latitude = request.getLatitude();
         this.longitude = request.getLongitude();
     }
+    // Entity 생성이 복잡하지 않다면 DTO로 초기화하는 것보다 그냥 멤버 변수 나열하는게 좋아보임. => 테스트 간편!
+    public Building(String name, String description, BigDecimal latitude, BigDecimal longitude) {
+        this.name = name;
+        this.description = description;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     @Column(name = "building_id")
     private Long id;
 
@@ -41,7 +47,6 @@ public class Building {
 
     @OneToMany(mappedBy = "building", cascade = ALL, orphanRemoval = true)
     private List<Node> nodes = new ArrayList<>();
-
 
     /**
      * 이거 조회시 사용할 경우 쿼리 너무 많이 나감. 성능 생각해서 조회시 사용하지 말자
@@ -59,7 +64,6 @@ public class Building {
         edge.changeBuilding(this);
         this.edges.add(edge);
     }
-
 
 
 }

@@ -9,8 +9,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 public class Edge {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     @Column(name = "edge_id")
     private Long id;
 
