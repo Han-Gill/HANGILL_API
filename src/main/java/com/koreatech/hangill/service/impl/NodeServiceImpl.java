@@ -6,9 +6,11 @@ import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.BuildFingerprintRequest;
 import com.koreatech.hangill.dto.request.SignalRequest;
+import com.koreatech.hangill.dto.response.FingerprintResponse;
 import com.koreatech.hangill.exception.NoSuchNodeException;
 import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
+import com.koreatech.hangill.service.NodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,13 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.koreatech.hangill.domain.OperationStatus.*;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class NodeServiceImpl {
+public class NodeServiceImpl implements NodeService {
     private final NodeRepository nodeRepository;
     private final AccessPointRepository accessPointRepository;
 
@@ -54,6 +57,7 @@ public class NodeServiceImpl {
      * @param nodeSearch : 건물 Id, 층, 번호
      * @return 노드
      */
+    @Transactional(readOnly = true)
     public Node findOne(NodeSearch nodeSearch) {
         try {
             return nodeRepository.findOne(nodeSearch);
@@ -87,6 +91,22 @@ public class NodeServiceImpl {
         }
 
         node.buildFingerprints(fingerprints);
+    }
+
+    /**
+     * 어떤 노드의 FingerPrint 목록을 반환
+     * @param nodeId : 노드 ID
+     * @return : (ssid, mac, rssi) 목록
+     */
+    @Transactional(readOnly = true)
+    public List<FingerprintResponse> fingerprints(Long nodeId) {
+        Node node = nodeRepository.findOne(nodeId);
+        if (node == null) throw new IllegalArgumentException("해당 ID의 노드가 없습니다!");
+        if (node.getFingerprints().size() == 0) throw new IllegalStateException("해당 노드에 Fingerprint가 구성되지 않았습니다!");
+
+        return node.getFingerprints().stream()
+                .map(FingerprintResponse::new)
+                .collect(Collectors.toList());
     }
 
 

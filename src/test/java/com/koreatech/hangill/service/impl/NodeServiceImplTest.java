@@ -2,6 +2,8 @@ package com.koreatech.hangill.service.impl;
 
 import com.koreatech.hangill.domain.*;
 import com.koreatech.hangill.dto.request.*;
+import com.koreatech.hangill.dto.response.FingerprintResponse;
+import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.BuildingRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ class NodeServiceImplTest {
     BuildingRepository buildingRepository;
 
     @Autowired
+    AccessPointRepository accessPointRepository;
+    @Autowired
     AccessPointServiceImpl accessPointService;
 
 //    @Rollback(value = false)
@@ -40,9 +44,9 @@ class NodeServiceImplTest {
         AccessPoint accessPointA = new AccessPoint("A", "A", building);
         AccessPoint accessPointB = new AccessPoint("B", "B", building);
         AccessPoint accessPointC = new AccessPoint("C", "C", building);
-        accessPointService.save(accessPointA);
-        accessPointService.save(accessPointB);
-        accessPointService.save(accessPointC);
+        accessPointRepository.save(accessPointA);
+        accessPointRepository.save(accessPointB);
+        accessPointRepository.save(accessPointC);
 
 
         buildingService.addNode(new AddNodeToBuildingRequest(
@@ -81,15 +85,22 @@ class NodeServiceImplTest {
         //then
 
         List<Fingerprint> fingerprints = node1.getFingerprints();
+        List<FingerprintResponse> fingerprintResponses = nodeService.fingerprints(node1.getId());
         int rssiSum = 0;
-        for (Fingerprint fingerprint : fingerprints) {
-            System.out.println(fingerprint.getAccessPoint().getMac());
-            System.out.println(fingerprint.getAccessPoint().getSsid());
-            System.out.println(fingerprint.getRssi());
-            rssiSum += fingerprint.getRssi();
+        for (int i = 0; i < fingerprints.size(); i++) {
+            Fingerprint fp = fingerprints.get(i);
+            FingerprintResponse fpr = fingerprintResponses.get(i);
+            assertEquals(fp.getRssi(), fpr.getRssi());
+            assertEquals(fp.getAccessPoint().getSsid(), fpr.getSsid());
+            assertEquals(fp.getAccessPoint().getMac(), fpr.getMac());
+            rssiSum += fp.getRssi();
         }
 
         assertEquals(-120, rssiSum, "신호세기 합이 -120이어야함!!");
+
+
+
+
     }
 
 

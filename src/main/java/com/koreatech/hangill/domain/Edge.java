@@ -5,11 +5,12 @@ import lombok.Getter;
 
 import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.*;
 
 @Entity
 @Getter
 public class Edge {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "edge_id")
     private Long id;
 

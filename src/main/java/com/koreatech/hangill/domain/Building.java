@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.GenerationType.*;
 
 @Entity
 @Getter
@@ -31,7 +32,7 @@ public class Building {
         this.longitude = longitude;
     }
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "building_id")
     private Long id;
 

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import static com.koreatech.hangill.domain.OperationStatus.*;
 import static jakarta.persistence.EnumType.*;
 import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
 @Entity
@@ -19,7 +20,7 @@ public class AccessPoint {
         this.building = building;
         turnOn();
     }
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "access_point_id")
     private Long id;
 

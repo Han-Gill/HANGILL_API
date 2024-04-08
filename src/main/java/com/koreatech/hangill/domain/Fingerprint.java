@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
 @Entity
@@ -18,7 +19,7 @@ public class Fingerprint {
         this.rssi = rssi;
         this.measurementDate = measurementDate;
     }
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "fingerprint_id")
     private Long id;
 

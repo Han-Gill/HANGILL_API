@@ -12,6 +12,7 @@ import java.util.List;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.*;
 
 /**
  * 추후 Setter 제공하지 않게끔 수정 필요
@@ -36,7 +37,7 @@ public class Node {
         this.floor = floor;
     }
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "node_id")
     private Long id;
 
