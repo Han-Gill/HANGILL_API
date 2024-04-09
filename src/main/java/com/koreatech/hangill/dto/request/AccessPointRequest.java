@@ -13,8 +13,8 @@ public class AccessPointRequest {
             nullable = false,
             example = "1"
     )
-
     private Long buildingId;
+
     @Schema(
             description = "추가할 AP의 SSID",
             nullable = false,

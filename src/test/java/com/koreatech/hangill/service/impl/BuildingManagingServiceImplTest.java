@@ -4,10 +4,12 @@ import com.koreatech.hangill.domain.Building;
 import com.koreatech.hangill.domain.Edge;
 import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.domain.NodeType;
+import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.AddEdgeToBuildingRequest;
 import com.koreatech.hangill.dto.request.AddNodeToBuildingRequest;
 import com.koreatech.hangill.dto.request.CreateBuildingRequest;
 import com.koreatech.hangill.dto.request.CreateNodeRequest;
+import com.koreatech.hangill.exception.CannotDeleteNodeException;
 import com.koreatech.hangill.exception.NoSuchNodeException;
 import com.koreatech.hangill.repository.BuildingRepository;
 import jakarta.persistence.EntityManager;
@@ -19,6 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
@@ -34,6 +38,9 @@ class BuildingManagingServiceImplTest {
     BuildingManagingServiceImpl buildingManagingService;
     @PersistenceContext
     EntityManager em;
+
+    @Autowired
+    NodeServiceImpl nodeService;
 
     @Test
     public void 건물에서_노드_추가() throws Exception {
@@ -83,15 +90,15 @@ class BuildingManagingServiceImplTest {
 
         buildingService.addNode(new AddNodeToBuildingRequest(
                 buildingId,
-                new CreateNodeRequest(1, null, null, null, 3)
+                new CreateNodeRequest(1, null, null, NodeType.ROAD, 3)
         ));
         buildingService.addNode(new AddNodeToBuildingRequest(
                 buildingId,
-                new CreateNodeRequest(2, null, null, null, 3)
+                new CreateNodeRequest(2, null, null, NodeType.ROAD, 3)
         ));
         buildingService.addNode(new AddNodeToBuildingRequest(
                 buildingId,
-                new CreateNodeRequest(3, null, null, null, 3)
+                new CreateNodeRequest(3, null, null, NodeType.ROAD, 3)
         ));
 
         //when
@@ -133,11 +140,11 @@ class BuildingManagingServiceImplTest {
     }
 
     @Test
-    public void 엣지_예외_테스트() throws Exception {
+    public void 엣지_예외_테스트_없는_노드를_도착_노드로_설정() throws Exception {
         //given
         Long buildingId = buildGraph("공학 1관");
 
-        Assertions.assertThrows(NoSuchNodeException.class, () -> {
+        assertThrows(NoSuchNodeException.class, () -> {
             buildingManagingService.addEdge(
                     new AddEdgeToBuildingRequest(
                             buildingId, 1, 1, 6, 3, 100L)
@@ -147,11 +154,67 @@ class BuildingManagingServiceImplTest {
         //when
 
         //then
+    }
 
+    @Test
+    public void 노드_삭제_시_예외_테스트() throws Exception {
+        //given
+        Long buildingId = buildGraph("공학2관");
+        //when
+        Node node = nodeService.findOne(new NodeSearch(buildingId, 2, 1));
+        assertThrows(CannotDeleteNodeException.class, () -> {
+            buildingManagingService.deleteNode(buildingId, node.getId());
+        }, "출발지로 삼은 엣지가 있는 노드를 삭제하면 안됨!");
+        //then
+    }
+
+    @Test
+    public void 노드_삭제() throws Exception {
+        //given
+        Long buildingId = buildGraph("공학 2관");
+        Building building = buildingRepository.findOne(buildingId);
+        buildingService.addNode(new AddNodeToBuildingRequest(
+                buildingId, new CreateNodeRequest(6, null, null, NodeType.ENTRANCE, 1)
+        ));
+        int prevNodeNum = building.getNodes().size();
+
+        //when
+        Node deleteNode = nodeService.findOne(new NodeSearch(buildingId, 6, 1));
+        buildingService.deleteNode(buildingId, deleteNode.getId());
+
+
+        //then
+        assertEquals(prevNodeNum - 1, building.getNodes().size(), "삭제후 노드 갯수가 맞아야함.");
+
+        // DB 동기화 후
+        em.flush();
+        em.clear();
+
+        Building findBuilding = buildingRepository.findOne(buildingId);
+        assertEquals(prevNodeNum - 1, findBuilding.getNodes().size(), "[DB 동기화 후]삭제후 노드 갯수가 맞아야함.");
 
     }
 
-    private Long buildGraph(String buildingName) {
+    @Test
+    public void 엣지_삭제() throws Exception {
+        //given
+        Long buildingId = buildGraph("공학 2관");
+        Building building = buildingRepository.findOne(buildingId);
+        int prevEdgeNum = building.getEdges().size();
+        //when
+
+        Edge edge = building.getEdges().get(0);
+        buildingService.deleteEdge(buildingId, edge.getId());
+
+        //then
+        assertEquals(prevEdgeNum - 1, building.getEdges().size(), "삭제 후 엣지 갯수가 맞아야함.");
+        em.flush();
+        em.clear();
+        assertEquals(prevEdgeNum - 1, building.getEdges().size(), "[DB 동기화 후]삭제 후 엣지 갯수가 맞아야함.");
+
+    }
+
+    public Long buildGraph(String buildingName) {
         Long buildingId = buildingManagingService.saveBuilding(new CreateBuildingRequest(
                 buildingName,
                 "컴공", null, null
