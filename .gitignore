@@ -48,3 +48,9 @@ out/
 
 ### ADMIN ###
 /src/main/java/com/koreatech/hangill/controller/BuildingManagingController.java
+/src/main/java/com/koreatech/hangill/controller/AccessPointManagingController.java
+/src/main/java/com/koreatech/hangill/controller/NodeManagingController.java
+/src/main/java/com/koreatech/hangill/controller/swagger/AccessPointManagingApi.java
+/src/main/java/com/koreatech/hangill/controller/swagger/BuildingManagingApi.java
+/src/main/java/com/koreatech/hangill/controller/swagger/NodeManagingApi.java
+
