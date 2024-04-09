@@ -10,6 +10,8 @@ import com.koreatech.hangill.dto.response.ShortestPathResponse;
 import com.koreatech.hangill.repository.BuildingRepository;
 import com.koreatech.hangill.repository.EdgeRepository;
 import com.koreatech.hangill.repository.NodeRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +40,9 @@ class BuildingServiceImplTest {
 
     @Autowired
     EdgeRepository edgeRepository;
+
+    @PersistenceContext
+    EntityManager em;
 
 
     @Test
@@ -98,7 +103,7 @@ class BuildingServiceImplTest {
         ));
 
         //when
-        ShortestPathResponse shortestPathResponse = buildingService.dijkstra(new ShortestPathRequest(
+        ShortestPathResponse shortestPathResponse = buildingService.findPath(new ShortestPathRequest(
                 buildingId,
                 startNode.getId(), endNode.getId()
         ));
@@ -133,6 +138,7 @@ class BuildingServiceImplTest {
                 "공학2관",
                 "컴공", null, null
         ));
+
 
 
         buildingManagingService.addNode(

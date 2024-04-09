@@ -1,7 +1,6 @@
 package com.koreatech.hangill.repository;
 
 import com.koreatech.hangill.domain.Edge;
-import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.dto.request.DeleteEdgeRequest;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

@@ -97,7 +97,9 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
 
     public void deleteEdge(Long buildingId, Long edgeId) {
         Building building = buildingRepository.findOne(buildingId);
-        building.getEdges().remove(edgeRepository.findOne(edgeId));
+        Edge edge = edgeRepository.findOne(edgeId);
+        if (edge == null) throw new IllegalArgumentException("해당 Id의 Edge가 없습니다!");
+        building.getEdges().remove(edge);
     }
 
     public void deleteNode(Long buildingId, Long nodeId) {
