@@ -1,5 +1,6 @@
 package com.koreatech.hangill.controller;
 
+import com.koreatech.hangill.controller.swagger.BuildingApi;
 import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.domain.NodeType;
 import com.koreatech.hangill.dto.NodeDto;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class BuildingController {
+public class BuildingController implements BuildingApi {
     private final BuildingService buildingService;
 
     @GetMapping("/api/v1/building/nodes/{buildingId}/{nodeType}")

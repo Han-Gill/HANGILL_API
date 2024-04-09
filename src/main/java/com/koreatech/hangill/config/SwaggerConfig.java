@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @OpenAPIDefinition(
         info = @Info(
                 title = "HanGill API 명세서",
-                description = "API for HanGill App.",
+                description = "API Docs for HanGill App.",
                 version = "v1"
         )
 )
