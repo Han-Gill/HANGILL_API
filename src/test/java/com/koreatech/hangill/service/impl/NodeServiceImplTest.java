@@ -29,6 +29,7 @@ class NodeServiceImplTest {
 
     @Autowired
     AccessPointRepository accessPointRepository;
+
     @Autowired
     AccessPointServiceImpl accessPointService;
 

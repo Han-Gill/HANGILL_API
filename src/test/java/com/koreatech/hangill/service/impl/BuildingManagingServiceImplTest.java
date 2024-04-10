@@ -10,11 +10,10 @@ import com.koreatech.hangill.dto.request.AddNodeToBuildingRequest;
 import com.koreatech.hangill.dto.request.CreateBuildingRequest;
 import com.koreatech.hangill.dto.request.CreateNodeRequest;
 import com.koreatech.hangill.exception.CannotDeleteNodeException;
-import com.koreatech.hangill.exception.NoSuchNodeException;
+import com.koreatech.hangill.exception.NodeNotFoundException;
 import com.koreatech.hangill.repository.BuildingRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,9 +47,9 @@ class BuildingManagingServiceImplTest {
         Long buildingId = saveBuilding();
 
 
-        CreateNodeRequest createNodeRequest = new CreateNodeRequest(1, null, null, null, 1);
-        CreateNodeRequest createNodeRequest2 = new CreateNodeRequest(2, null, null, null, 1);
-        CreateNodeRequest createNodeRequest3 = new CreateNodeRequest(3, null, null, null, 1);
+        CreateNodeRequest createNodeRequest = new CreateNodeRequest(1, null, null, NodeType.ROAD, 1);
+        CreateNodeRequest createNodeRequest2 = new CreateNodeRequest(2, null, null, NodeType.ROAD, 1);
+        CreateNodeRequest createNodeRequest3 = new CreateNodeRequest(3, null, null, NodeType.ROAD, 1);
 
 
         //when
@@ -144,7 +143,7 @@ class BuildingManagingServiceImplTest {
         //given
         Long buildingId = buildGraph("공학 1관");
 
-        assertThrows(NoSuchNodeException.class, () -> {
+        assertThrows(NodeNotFoundException.class, () -> {
             buildingManagingService.addEdge(
                     new AddEdgeToBuildingRequest(
                             buildingId, 1, 1, 6, 3, 100L)

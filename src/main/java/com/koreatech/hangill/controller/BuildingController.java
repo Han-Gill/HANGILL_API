@@ -5,14 +5,14 @@ import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.domain.NodeType;
 import com.koreatech.hangill.dto.NodeDto;
 import com.koreatech.hangill.dto.request.ShortestPathRequest;
+import com.koreatech.hangill.dto.request.UpdateBuildingRequest;
 import com.koreatech.hangill.dto.response.NodeDtosResponse;
 import com.koreatech.hangill.dto.response.ShortestPathResponse;
 import com.koreatech.hangill.service.BuildingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

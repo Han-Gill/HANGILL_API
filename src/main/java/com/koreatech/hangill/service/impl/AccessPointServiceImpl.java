@@ -1,6 +1,7 @@
 package com.koreatech.hangill.service.impl;
 
 import com.koreatech.hangill.domain.AccessPoint;
+import com.koreatech.hangill.domain.Building;
 import com.koreatech.hangill.dto.request.AccessPointRequest;
 import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.BuildingRepository;
@@ -19,10 +20,11 @@ public class AccessPointServiceImpl implements AccessPointService {
     @Transactional
     public Long save(AccessPointRequest request) {
         validateDuplicatedMac(request.getMac());
+        Building building = buildingRepository.findOne(request.getBuildingName());
         AccessPoint accessPoint = new AccessPoint(
                 request.getSsid(),
                 request.getMac(),
-                buildingRepository.findOne(request.getBuildingId())
+                building
         );
         accessPointRepository.save(accessPoint);
         return accessPoint.getId();

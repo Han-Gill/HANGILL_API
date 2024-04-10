@@ -1,14 +1,15 @@
 package com.koreatech.hangill.repository;
 
-import com.koreatech.hangill.domain.AccessPoint;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 
 @SpringBootTest
+@Transactional
 class AccessPointRepositoryTest {
     @Autowired
     AccessPointRepository accessPointRepository;

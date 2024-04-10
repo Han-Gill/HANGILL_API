@@ -2,6 +2,7 @@ package com.koreatech.hangill.domain;
 
 
 import com.koreatech.hangill.dto.request.CreateBuildingRequest;
+import com.koreatech.hangill.dto.request.UpdateBuildingRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -64,6 +65,14 @@ public class Building {
     public void addEdge(Edge edge) {
         edge.changeBuilding(this);
         this.edges.add(edge);
+    }
+
+
+    public void update(UpdateBuildingRequest buildingRequest){
+        this.name = buildingRequest.getBuildingName();
+        this.description = buildingRequest.getDescription();
+        this.latitude = buildingRequest.getLatitude();
+        this.longitude = buildingRequest.getLongitude();
     }
 
 
