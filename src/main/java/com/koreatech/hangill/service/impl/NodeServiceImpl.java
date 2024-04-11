@@ -7,7 +7,7 @@ import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.BuildFingerprintRequest;
 import com.koreatech.hangill.dto.request.SignalRequest;
 import com.koreatech.hangill.dto.response.FingerprintResponse;
-import com.koreatech.hangill.exception.NoSuchNodeException;
+import com.koreatech.hangill.exception.NodeNotFoundException;
 import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
 import com.koreatech.hangill.service.NodeService;
@@ -38,7 +38,7 @@ public class NodeServiceImpl implements NodeService {
     @Transactional(readOnly = true)
     public void validateDuplicatedNode(NodeSearch nodeSearch) {
         if (nodeRepository.findAll(nodeSearch).size() > 0)
-            throw new IllegalStateException("같은 건물의 같은 층에 해당 번호의 노드가 존재합니다.");
+            throw new IllegalArgumentException("같은 건물의 같은 층에 해당 번호의 노드가 존재합니다.");
     }
 
     /**
@@ -48,7 +48,9 @@ public class NodeServiceImpl implements NodeService {
      */
     @Transactional(readOnly = true)
     public void validateHasNode(NodeSearch nodeSearch) {
-        if (nodeRepository.findAll(nodeSearch).size() == 0) throw new NoSuchNodeException("해당 노드가 없습니다!");
+        if (nodeRepository.findAll(nodeSearch).size() == 0) {
+            throw NodeNotFoundException.withDetail(String.valueOf(nodeSearch.getNumber()));
+        }
     }
 
     /**
@@ -62,7 +64,9 @@ public class NodeServiceImpl implements NodeService {
         try {
             return nodeRepository.findOne(nodeSearch);
         } catch (Exception e) {
-            throw new NoSuchNodeException("건물에 헤당 노드가 없습니다!");
+            String message = nodeSearch.getBuildingId() + "번 ID 건물에 " + nodeSearch.getFloor() +"층에 속한 "
+                    + nodeSearch.getNumber() + "번";
+            throw NodeNotFoundException.withDetail(message);
         }
     }
 
@@ -101,8 +105,8 @@ public class NodeServiceImpl implements NodeService {
     @Transactional(readOnly = true)
     public List<FingerprintResponse> fingerprints(Long nodeId) {
         Node node = nodeRepository.findOne(nodeId);
-        if (node == null) throw new IllegalArgumentException("해당 ID의 노드가 없습니다!");
-        if (node.getFingerprints().size() == 0) throw new IllegalStateException("해당 노드에 Fingerprint가 구성되지 않았습니다!");
+        if (node == null) throw NodeNotFoundException.withDetail(nodeId + "번 ID를 가진");
+//        if (node.getFingerprints().size() == 0) throw new IllegalStateException("해당 노드에 Fingerprint가 구성되지 않았습니다!");
 
         return node.getFingerprints().stream()
                 .map(FingerprintResponse::new)

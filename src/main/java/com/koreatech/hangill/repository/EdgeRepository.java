@@ -2,6 +2,7 @@ package com.koreatech.hangill.repository;
 
 import com.koreatech.hangill.domain.Edge;
 import com.koreatech.hangill.dto.request.DeleteEdgeRequest;
+import com.koreatech.hangill.exception.EdgeNotFoundException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,11 @@ public class EdgeRepository {
         em.persist(edge);
     }
 
-    public Edge findOne(Long id) {return em.find(Edge.class, id);}
+    public Edge findOne(Long id) {
+        Edge edge = em.find(Edge.class, id);
+        if (edge == null) throw EdgeNotFoundException.withDetail(String.valueOf(id));
+        return edge;
+    }
 
     public List<Edge> findAll(DeleteEdgeRequest request) {
         String query = """

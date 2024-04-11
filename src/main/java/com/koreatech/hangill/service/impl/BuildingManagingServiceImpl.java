@@ -5,7 +5,9 @@ import com.koreatech.hangill.domain.Edge;
 import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.*;
+import com.koreatech.hangill.exception.BuildingNotFoundException;
 import com.koreatech.hangill.exception.CannotDeleteNodeException;
+import com.koreatech.hangill.exception.EdgeNotFoundException;
 import com.koreatech.hangill.repository.BuildingRepository;
 import com.koreatech.hangill.repository.EdgeRepository;
 import com.koreatech.hangill.repository.NodeRepository;
@@ -52,8 +54,9 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
      * 동일 이름의 건물이 있는지 검증하는 로직
      */
     public void validateDuplicatedBuilding(String name) {
-        if (buildingRepository.findAll(name).size() > 0) throw new IllegalStateException("같은 이름의 건물이 있습니다.");
+        if (buildingRepository.findAll(name).size() > 0) throw new IllegalArgumentException("같은 이름의 건물이 있습니다.");
     }
+
 
     /**
      * 건물에 노드 추가
@@ -98,7 +101,7 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
     public void deleteEdge(Long buildingId, Long edgeId) {
         Building building = buildingRepository.findOne(buildingId);
         Edge edge = edgeRepository.findOne(edgeId);
-        if (edge == null) throw new IllegalArgumentException("해당 Id의 Edge가 없습니다!");
+        if (edge == null) throw EdgeNotFoundException.withDetail(String.valueOf(edgeId));
         building.getEdges().remove(edge);
     }
 
@@ -134,7 +137,6 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
      * @param id : 건물 id
      */
     public Map<Long, List<Long[]>> findNumberGraph(Long id) {
-
         Building building = buildingRepository.findOne(id);
         List<Node> nodes = building.getNodes();
         List<Edge> edges = edgeRepository.findAll(id);
@@ -152,6 +154,11 @@ public class BuildingManagingServiceImpl implements BuildingManagingService {
         return graph;
     }
 
+    public void updateBuilding(UpdateBuildingRequest request) {
+        Building building = buildingRepository.findOne(request.getBuildingId());
+
+        building.update(request);
+    }
 
 
 
