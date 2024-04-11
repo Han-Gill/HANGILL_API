@@ -5,6 +5,7 @@ import com.koreatech.hangill.domain.Fingerprint;
 import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.BuildFingerprintRequest;
+import com.koreatech.hangill.dto.request.NodePositionRequest;
 import com.koreatech.hangill.dto.request.SignalRequest;
 import com.koreatech.hangill.dto.response.FingerprintResponse;
 import com.koreatech.hangill.exception.NodeNotFoundException;
@@ -16,8 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.koreatech.hangill.domain.OperationStatus.*;
@@ -103,15 +103,60 @@ public class NodeServiceImpl implements NodeService {
      * @return : (ssid, mac, rssi) 목록
      */
     @Transactional(readOnly = true)
-    public List<FingerprintResponse> fingerprints(Long nodeId) {
+    public List<Fingerprint> fingerprints(Long nodeId) {
         Node node = nodeRepository.findOne(nodeId);
         if (node == null) throw NodeNotFoundException.withDetail(nodeId + "번 ID를 가진");
-//        if (node.getFingerprints().size() == 0) throw new IllegalStateException("해당 노드에 Fingerprint가 구성되지 않았습니다!");
 
-        return node.getFingerprints().stream()
-                .map(FingerprintResponse::new)
-                .collect(Collectors.toList());
+        return node.getFingerprints();
     }
+    /**
+     * 건물 ID와 받은 신호세기목록을 바탕으로 현재위치와 가장 가까운 노드가 어떤 노드인지 판별
+     * @param request : 건물 ID, 신호세기 목록
+     * @return : 위치를 판정한 노드 ID
+     * 일단 최적화 고려하지 않고 짜보자. => 추후 Fetch Join으로 최적화 수행!
+     */
+    @Transactional(readOnly = true)
+    public Node findPosition(NodePositionRequest request) {
+        // 먼저 건물에서 사용할 AP 목록 확보
+        List<AccessPoint> runningAPs = accessPointRepository.findAll(request.getBuildingId(), RUNNING);
+        List<Node> nodes = nodeRepository.findAllByBuilding(request.getBuildingId());
 
+        Node minNode = null;
+        double minVal = Double.MAX_VALUE;
 
+        // 각 노드에 대해 차이값 계산
+        for (Node node : nodes) {
+            Map<String, Integer> diff = buildDiff(runningAPs);
+            double nodeScore = calculateWeight(diff, node, request.getSignals());
+            if (nodeScore < minVal) {
+                minNode = node;
+                minVal = nodeScore;
+            }
+        }
+        return minNode;
+    }
+    private Map<String, Integer> buildDiff(List<AccessPoint> aps) {
+        Map<String, Integer> diff = new HashMap<>();
+        for (AccessPoint accessPoint : aps) {
+            diff.put(accessPoint.getMac(), 0);
+        }
+        return diff;
+    }
+    private double calculateWeight(Map<String, Integer> diff, Node node, List<SignalRequest> signals) {
+        List<Fingerprint> fingerprints = node.getFingerprints();
+        for (Fingerprint fingerprint : fingerprints) {
+            String mac = fingerprint.getAccessPoint().getMac();
+            if (diff.containsKey(mac)) diff.put(mac, diff.get(mac) + fingerprint.getRssi());
+        }
+        for (SignalRequest signal : signals) {
+            String mac = signal.getMac();
+            if (diff.containsKey(mac)) diff.put(mac, diff.get(mac) - signal.getRssi());
+        }
+
+        int total_score = 0;
+        for (Integer score : diff.values()) {
+            total_score += score * score;
+        }
+        return Math.sqrt(total_score);
+    }
 }

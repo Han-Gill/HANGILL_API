@@ -22,14 +22,11 @@ public class Fingerprint {
     @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "fingerprint_id")
     private Long id;
-
     private Integer rssi;
     private LocalDateTime measurementDate;
-
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "node_id")
     private Node node;
-
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "access_point_id")
     private AccessPoint accessPoint;
