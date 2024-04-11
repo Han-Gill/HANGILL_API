@@ -28,13 +28,27 @@ public class AccessPointRepository {
                 FROM AccessPoint a
                 JOIN a.building b
                     ON b.id = :buildingId
-                    AND  a.mac = :mac
+                    AND a.mac = :mac
                     AND a.status = :running
                 """;
         return em.createQuery(query, AccessPoint.class)
                 .setParameter("buildingId", buildingId)
                 .setParameter("mac", mac)
                 .setParameter("running", running)
+                .getResultList();
+    }
+
+    public List<AccessPoint> findAll(Long buildingId, OperationStatus status) {
+        String query = """
+                SELECT a
+                FROM AccessPoint a
+                JOIN a.building b
+                    ON b.id = :buildingId
+                    AND a.status = :status
+                """;
+        return em.createQuery(query, AccessPoint.class)
+                .setParameter("buildingId", buildingId)
+                .setParameter("status", status)
                 .getResultList();
     }
 

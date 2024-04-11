@@ -35,7 +35,7 @@ public class NodeRepository {
                 FROM Node n JOIN n.building b
                         ON b.id = :buildingId
                         AND n.number = :number
-                        AND n.floor = :floor 
+                        AND n.floor = :floor
                 """;
         return em.createQuery(query, Node.class)
                 .setParameter("buildingId", nodeSearch.getBuildingId())
@@ -62,6 +62,22 @@ public class NodeRepository {
         Node node = em.find(Node.class, id);
         if (node == null) throw NodeNotFoundException.withDetail(id + "번 ID를 가진 ");
         return node;
+    }
+
+    // 페치조인 최적화
+    public List<Node> findAll(Long buildingId) {
+        String query = """
+                SELECT DISTINCT n
+                FROM Node n JOIN FETCH n.fingerprints f
+                            JOIN FETCH f.accessPoint a
+                            JOIN FETCH n.building b
+                WHERE b.id = :buildingId
+                
+                """;
+
+        return em.createQuery(query, Node.class)
+                .setParameter("buildingId", buildingId)
+                .getResultList();
     }
 
 
