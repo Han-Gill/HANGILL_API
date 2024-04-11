@@ -3,9 +3,13 @@ package com.koreatech.hangill.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccessPointRequest {
     @NotBlank(message = "건물이름은 반드시 입력해주세요")
     @Schema(
