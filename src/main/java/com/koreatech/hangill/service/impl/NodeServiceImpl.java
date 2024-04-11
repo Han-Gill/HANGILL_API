@@ -65,7 +65,7 @@ public class NodeServiceImpl implements NodeService {
             return nodeRepository.findOne(nodeSearch);
         } catch (Exception e) {
             String message = nodeSearch.getBuildingId() + "번 ID 건물에 " + nodeSearch.getFloor() +"층에 속한 "
-                    + nodeSearch.getNumber() + "번 노드가";
+                    + nodeSearch.getNumber() + "번";
             throw NodeNotFoundException.withDetail(message);
         }
     }

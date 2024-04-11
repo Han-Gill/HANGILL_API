@@ -45,9 +45,13 @@ class NodeServiceImplTest {
         AccessPoint accessPointA = new AccessPoint("A", "A", building);
         AccessPoint accessPointB = new AccessPoint("B", "B", building);
         AccessPoint accessPointC = new AccessPoint("C", "C", building);
+        AccessPoint accessPointD = new AccessPoint("D", "D", building);
+        AccessPoint accessPointE = new AccessPoint("E", "E", building);
         accessPointRepository.save(accessPointA);
         accessPointRepository.save(accessPointB);
         accessPointRepository.save(accessPointC);
+        accessPointRepository.save(accessPointD);
+        accessPointRepository.save(accessPointE);
 
 
         buildingService.addNode(new AddNodeToBuildingRequest(
@@ -70,7 +74,8 @@ class NodeServiceImplTest {
 
 
         //when
-//        accessPointA.turnOff();
+        accessPointService.turnOffBySsid(accessPointD.getSsid(), building.getId());
+//        accessPointService.turnOnByMac(accessPointD.getMac());
         nodeService.buildFingerPrint(request1);
 
         //then
@@ -105,7 +110,7 @@ class NodeServiceImplTest {
             rssiSum += fp.getRssi();
         }
 
-        assertEquals(-60, rssiSum, "신호세기 합이 -100이어야함!!");
+        assertEquals(-60, rssiSum, "신호세기 합이 -60이어야함!!");
 
     }
 

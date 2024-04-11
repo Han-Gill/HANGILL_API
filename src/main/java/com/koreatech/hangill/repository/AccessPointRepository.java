@@ -55,5 +55,19 @@ public class AccessPointRepository {
                 .setParameter("mac", mac)
                 .getResultList();
     }
+
+    public List<AccessPoint> findAll(String ssid, Long buildingId) {
+        String query = """
+                SELECT a
+                FROM AccessPoint a
+                JOIN a.building b
+                    ON b.id = :buildingId
+                    AND a.ssid = :ssid
+                """;
+        return em.createQuery(query, AccessPoint.class)
+                .setParameter("ssid", ssid)
+                .setParameter("buildingId", buildingId)
+                .getResultList();
+    }
 }
 
