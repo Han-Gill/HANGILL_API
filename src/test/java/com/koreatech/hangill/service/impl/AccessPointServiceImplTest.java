@@ -8,10 +8,12 @@ import com.koreatech.hangill.service.BuildingManagingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
 class AccessPointServiceImplTest {
     @Autowired
     AccessPointServiceImpl accessPointService;
@@ -30,10 +32,9 @@ class AccessPointServiceImplTest {
         );
         Long buildingId = buildingManagingService.saveBuilding(request);
 
-        AccessPointRequest accessPointRequest1 = createAPRequest("A", "A", buildingId);
-        AccessPointRequest accessPointRequest2 = createAPRequest("B", "B", buildingId);
-        AccessPointRequest accessPointRequest3 = createAPRequest("C", "C", buildingId);
-
+        AccessPointRequest accessPointRequest1 = createAPRequest("A", "A", request.getName());
+        AccessPointRequest accessPointRequest2 = createAPRequest("B", "B", request.getName());
+        AccessPointRequest accessPointRequest3 = createAPRequest("C", "C", request.getName());
         //when
         Long save1 = accessPointService.save(accessPointRequest1);
         Long save2 = accessPointService.save(accessPointRequest2);
@@ -53,11 +54,11 @@ class AccessPointServiceImplTest {
         assertEquals(3, accessPointRepository.findAll(buildingId).size(), "공학 2관엔 3개의 AP가 있어야함");
     }
 
-    private static AccessPointRequest createAPRequest(String ssid, String mac, long buildingId) {
+    private static AccessPointRequest createAPRequest(String ssid, String mac, String buildingName) {
         AccessPointRequest accessPointRequest = new AccessPointRequest();
         accessPointRequest.setSsid(ssid);
         accessPointRequest.setMac(mac);
-        accessPointRequest.setBuildingId(buildingId);
+        accessPointRequest.setBuildingName(buildingName);
         return accessPointRequest;
     }
 }

@@ -29,12 +29,13 @@ class NodeServiceImplTest {
 
     @Autowired
     AccessPointRepository accessPointRepository;
+
     @Autowired
     AccessPointServiceImpl accessPointService;
 
 //    @Rollback(value = false)
     @Test
-    public void 핑거_프린트_구성() throws Exception {
+    public void 핑거_프린트_구성_및_재구성() throws Exception {
         //given
         Long buildingId = buildingService.saveBuilding(new CreateBuildingRequest(
                 "공학 2관", "컴공 & 건디", null, null
@@ -44,9 +45,13 @@ class NodeServiceImplTest {
         AccessPoint accessPointA = new AccessPoint("A", "A", building);
         AccessPoint accessPointB = new AccessPoint("B", "B", building);
         AccessPoint accessPointC = new AccessPoint("C", "C", building);
+        AccessPoint accessPointD = new AccessPoint("D", "D", building);
+        AccessPoint accessPointE = new AccessPoint("E", "E", building);
         accessPointRepository.save(accessPointA);
         accessPointRepository.save(accessPointB);
         accessPointRepository.save(accessPointC);
+        accessPointRepository.save(accessPointD);
+        accessPointRepository.save(accessPointE);
 
 
         buildingService.addNode(new AddNodeToBuildingRequest(
@@ -65,21 +70,12 @@ class NodeServiceImplTest {
         Node node1 = building.getNodes().get(0);
 
 
-        BuildFingerprintRequest request1 = new BuildFingerprintRequest();
-        request1.setNodeId(node1.getId());
-        List<SignalRequest> signalRequests = new ArrayList<>();
-        // Node1에서 세 가지 신호가 잡힘
-        // A, B는 위치 특정 시 사용하는 신호
-        // D는 사용자 핫스팟과 같은 위치 특정시 사용하지 않는 신호
-        signalRequests.add(new SignalRequest("A", "A", -43)); // 건물에서 사용하는 AP 신호
-        signalRequests.add(new SignalRequest("B", "B", -77)); // 건물에서 사용하는 AP 신호
-        signalRequests.add(new SignalRequest("D", "D", -87)); // 건물에서 사용하지 않는 AP 신호
-        request1.setSignals(signalRequests);
-
+        BuildFingerprintRequest request1 = getBuildFingerprintRequest(node1, -43, -77, -87);
 
 
         //when
-//        accessPointA.turnOff();
+        accessPointService.turnOffBySsid(accessPointD.getSsid(), building.getId());
+//        accessPointService.turnOnByMac(accessPointD.getMac());
         nodeService.buildFingerPrint(request1);
 
         //then
@@ -99,9 +95,41 @@ class NodeServiceImplTest {
         assertEquals(-120, rssiSum, "신호세기 합이 -120이어야함!!");
 
 
+        BuildFingerprintRequest request2 = getBuildFingerprintRequest(node1, -10, -50, -40);
+        nodeService.buildFingerPrint(request2);
 
+        fingerprints = node1.getFingerprints();
+        fingerprintResponses = nodeService.fingerprints(node1.getId());
+        rssiSum = 0;
+        for (int i = 0; i < fingerprints.size(); i++) {
+            Fingerprint fp = fingerprints.get(i);
+            FingerprintResponse fpr = fingerprintResponses.get(i);
+            assertEquals(fp.getRssi(), fpr.getRssi());
+            assertEquals(fp.getAccessPoint().getSsid(), fpr.getSsid());
+            assertEquals(fp.getAccessPoint().getMac(), fpr.getMac());
+            rssiSum += fp.getRssi();
+        }
+
+        assertEquals(-60, rssiSum, "신호세기 합이 -60이어야함!!");
 
     }
+
+
+
+    private static BuildFingerprintRequest getBuildFingerprintRequest(Node node1, int rssi1, int rssi2, int rssi3) {
+        BuildFingerprintRequest request1 = new BuildFingerprintRequest();
+        request1.setNodeId(node1.getId());
+        List<SignalRequest> signalRequests = new ArrayList<>();
+        // Node1에서 세 가지 신호가 잡힘
+        // A, B는 위치 특정 시 사용하는 신호
+        // D는 사용자 핫스팟과 같은 위치 특정시 사용하지 않는 신호
+        signalRequests.add(new SignalRequest("A", "A", rssi1)); // 건물에서 사용하는 AP 신호
+        signalRequests.add(new SignalRequest("B", "B", rssi2)); // 건물에서 사용하는 AP 신호
+        signalRequests.add(new SignalRequest("D", "D", rssi3)); // 건물에서 사용하지 않는 AP 신호
+        request1.setSignals(signalRequests);
+        return request1;
+    }
+
 
 
 }

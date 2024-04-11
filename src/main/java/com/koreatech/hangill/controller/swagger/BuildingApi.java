@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@Tag(name = "건물 관련 API", description = "건물의 노드 목록 조회, 건물의 경로 조회 API")
+@Tag(name = "건물 관련 API", description = "FE에서 사용")
 public interface BuildingApi {
     @Operation(summary = "건물 노드 목록 조회(타입별) API")
     @ApiResponses(
