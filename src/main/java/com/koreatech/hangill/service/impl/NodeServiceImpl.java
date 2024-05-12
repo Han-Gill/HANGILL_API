@@ -119,7 +119,7 @@ public class NodeServiceImpl implements NodeService {
     public Node findPosition(NodePositionRequest request) {
         // 먼저 건물에서 사용할 AP 목록 확보
         List<AccessPoint> runningAPs = accessPointRepository.findAll(request.getBuildingId(), RUNNING);
-        List<Node> nodes = nodeRepository.findAllByBuilding(request.getBuildingId());
+        List<Node> nodes = nodeRepository.findAll(request.getBuildingId());
 
         Node minNode = null;
         double minVal = Double.MAX_VALUE;
