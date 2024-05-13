@@ -59,8 +59,10 @@ public class BuildingManagingController implements BuildingManagingApi {
     @PostMapping("/api/v1/admin/building/edge")
     public ResponseEntity<Void> saveEdge(@Valid @RequestBody AddEdgeToBuildingRequest request) {
         buildingManagingService.addEdge(request);
+        // 양방향으로 추가
+        AddEdgeToBuildingRequest opposite = AddEdgeToBuildingRequest.oppositeEdge(request);
+        buildingManagingService.addEdge(opposite);
         return ResponseEntity.ok().build();
-
     }
 
     @GetMapping("/api/v1/admin/building/{buildingId}/graph")
