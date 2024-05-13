@@ -28,9 +28,9 @@ class InputServiceTest {
 //                new BigDecimal("36.7667765")
 //        ));
 
-        inputService.initData();
+//        inputService.initData();
 //        inputService.saveAccessPoints();
-        inputService.saveFingerPrint();
+//        inputService.saveFingerPrint();
 //        inputService.find();
         //when
 
