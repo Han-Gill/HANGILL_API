@@ -93,6 +93,7 @@ public class InputService {
             nodeService.buildFingerPrint(new BuildFingerprintRequest(node.getId(), signalRequests));
         }
     }
+
     public void find() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < datas.size(); i += 3) {
@@ -105,7 +106,7 @@ public class InputService {
                         nodeSearchRequest.getNumber(),
                         nodeSearchRequest.getFloor()
                 ));
-            }catch (Exception e) {
+            } catch (Exception e) {
                 sb.append(nodeSearchRequest.getNumber()).append("번 ").append(nodeSearchRequest.getFloor()).append("층").append("\n");
             }
         }
