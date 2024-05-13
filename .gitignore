@@ -55,5 +55,5 @@ out/
 #/src/main/java/com/koreatech/hangill/controller/swagger/NodeManagingApi.java
 #/src/main/java/com/koreatech/hangill/service/impl/InputService.java
 #/src/test/java/com/koreatech/hangill/service/impl/InputServiceTest.java
-/src/test/java/com/koreatech/hangill/service/impl/InputServiceTest.java
+#/src/test/java/com/koreatech/hangill/service/impl/InputServiceTest.java
 #/src/main/java/com/koreatech/hangill/service/impl/InputService.java
