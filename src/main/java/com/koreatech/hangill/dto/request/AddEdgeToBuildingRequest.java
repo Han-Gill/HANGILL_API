@@ -55,4 +55,15 @@ public class AddEdgeToBuildingRequest {
             example = "1021"
     )
     private Long distance;
+
+    public static AddEdgeToBuildingRequest oppositeEdge(AddEdgeToBuildingRequest request) {
+        return new AddEdgeToBuildingRequest(
+                request.getBuildingId(),
+                request.getEndNodeNumber(),
+                request.getEndNodeFloor(),
+                request.getStartNodeNumber(),
+                request.getStartNodeFloor(),
+                request.getDistance()
+        );
+    }
 }
