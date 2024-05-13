@@ -42,6 +42,34 @@ class BuildingManagingServiceImplTest {
     NodeServiceImpl nodeService;
 
     @Test
+    public void 엣지_양방향_추가_테스트() throws Exception{
+        //given
+        Long buildingId = saveBuilding();
+
+        CreateNodeRequest createNodeRequest = new CreateNodeRequest(1, null, null, NodeType.ROAD, 1);
+        CreateNodeRequest createNodeRequest2 = new CreateNodeRequest(2, null, null, NodeType.ROAD, 1);
+        CreateNodeRequest createNodeRequest3 = new CreateNodeRequest(3, null, null, NodeType.ROAD, 1);
+        buildingService.addNode(new AddNodeToBuildingRequest(
+                buildingId,
+                createNodeRequest
+        ));
+        buildingService.addNode(new AddNodeToBuildingRequest(
+                buildingId,
+                createNodeRequest2
+        ));
+        buildingService.addNode(new AddNodeToBuildingRequest(
+                buildingId,
+                createNodeRequest3
+        ));
+        //when
+        buildingService.addEdge(new AddEdgeToBuildingRequest(buildingId, 1, 1, 2, 1, 1000L));
+        buildingService.addEdge(new AddEdgeToBuildingRequest(buildingId, 1, 1, 3, 1, 1000L));
+
+        //then
+
+     }
+
+    @Test
     public void 건물에서_노드_추가() throws Exception {
         //given
         Long buildingId = saveBuilding();
