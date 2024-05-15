@@ -42,7 +42,7 @@ class NodeServiceImplTest {
     @PersistenceContext
     EntityManager em;
 
-//    @Rollback(value = false)
+    //    @Rollback(value = false)
     @Test
     public void 핑거_프린트_구성_및_재구성() throws Exception {
         //given
@@ -109,6 +109,7 @@ class NodeServiceImplTest {
         assertEquals(-60, rssiSum, "신호세기 합이 -60이어야함!!");
 
     }
+
     private static BuildFingerprintRequest getBuildFingerprintRequest(Node node1, int rssi1, int rssi2, int rssi3) {
         BuildFingerprintRequest request1 = new BuildFingerprintRequest();
         request1.setNodeId(node1.getId());
@@ -124,7 +125,7 @@ class NodeServiceImplTest {
     }
 
     @Test
-    public void 위치_확인_테스트() throws Exception{
+    public void 위치_확인_테스트() throws Exception {
         //given
         Long buildingId = buildingService.saveBuilding(new CreateBuildingRequest(
                 "공학 2관", "컴공 & 건디", null, null
@@ -193,11 +194,10 @@ class NodeServiceImplTest {
         userSignals.add(new SignalRequest("E", "E", -52));
         userSignals.add(new SignalRequest("F", "F", -52));
         userSignals.add(new SignalRequest("G", "G", -52));
-        Node searchNode = nodeService.findPosition(new NodePositionRequest(buildingId, userSignals));
-        assertEquals(node3, searchNode);
+        Node searchNode = nodeService.findPositionV2(new NodePositionRequest(buildingId, userSignals));
         //then
-
-     }
+        assertEquals(node3, searchNode);
+    }
 
 
 

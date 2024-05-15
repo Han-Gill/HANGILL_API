@@ -7,10 +7,10 @@ import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.BuildFingerprintRequest;
 import com.koreatech.hangill.dto.request.NodePositionRequest;
 import com.koreatech.hangill.dto.request.SignalRequest;
-import com.koreatech.hangill.dto.response.FingerprintResponse;
 import com.koreatech.hangill.exception.NodeNotFoundException;
 import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
+import com.koreatech.hangill.service.AccessPointService;
 import com.koreatech.hangill.service.NodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.koreatech.hangill.domain.NodeType.*;
 import static com.koreatech.hangill.domain.OperationStatus.*;
 
 @Service
@@ -28,6 +29,7 @@ import static com.koreatech.hangill.domain.OperationStatus.*;
 public class NodeServiceImpl implements NodeService {
     private final NodeRepository nodeRepository;
     private final AccessPointRepository accessPointRepository;
+    private final AccessPointService accessPointService;
 
     /**
      * 중복 노드 검증
@@ -74,27 +76,32 @@ public class NodeServiceImpl implements NodeService {
      * Node의 Fingerprint를 구축하는 메소드
      *
      * @param request : 노드 ID, wifi 신호목록
-     *                1. AP filtering : 해당 건물에 있는 가동중인 AP들로 필터링
-     *                2. node의 Fingerprint로 추가
+     *                node의 Fingerprint로 추가
      * 효율성 고려하지 않은 코드임. 추후 최적화 고려 필요
      */
     public void buildFingerPrint(BuildFingerprintRequest request) {
         Node node = nodeRepository.findOne(request.getNodeId());
         List<Fingerprint> fingerprints = new ArrayList<>();
         for (SignalRequest signal : request.getSignals()) {
-            // 해당 건물의 해당 mac 주소를 가진 운용중인 AP를 찾기
-            List<AccessPoint> accessPoints = accessPointRepository.findAll(node.getBuilding().getId(), signal.getMac(), RUNNING);
-            // 없다면 고려 X
+            List<AccessPoint> accessPoints = accessPointRepository.findAll(signal.getMac());
+            // DB에 저장되어 있지 않은 AP로 부터 받은 신호는 무시.
             if (accessPoints.size() == 0) continue;
-
             fingerprints.add(new Fingerprint(
                     accessPoints.get(0),
                     signal.getRssi(),
                     LocalDateTime.now()
             ));
         }
-
         node.buildFingerprints(fingerprints);
+    }
+
+    /**
+     * 받은 신호들로부터 AccessPoint들을 모두 저장한 후 Fingerprint저장.
+     * @param request : 노드 ID, wifi 신호목록
+     */
+    public void buildAccessPointAndFingerPrint(BuildFingerprintRequest request) {
+        accessPointService.saveAllBySignals(request);
+        buildFingerPrint(request);
     }
 
     /**
@@ -109,6 +116,71 @@ public class NodeServiceImpl implements NodeService {
 
         return node.getFingerprints();
     }
+
+    /**
+     * 건물 ID와 받은 신호세기목록을 바탕으로 현재위치와 가장 가까운 노드가 어떤 노드인지 판별 Version2
+     * 1. 복도 노드로만 필터링
+     * 2. 각 노드에 대해
+     *     비교 AP Set 선정.
+     *         - 노드와 신호의 합집합.
+     *         - 사용하는 AP들로만 필터링.
+     *     신호 거리값 계산
+     * 3. 최적의 노드를 찾음.
+     * @param request : 건물 ID와 신호들
+     * @return 사용자의 신호세기로부터 가장 가까운 노드
+     */
+    @Transactional(readOnly = true)
+    public Node findPositionV2(NodePositionRequest request) {
+        // 사용하는 AP들.
+        Set<String> runningAPs = accessPointRepository.findAll(request.getBuildingId(), RUNNING).stream()
+                .map(AccessPoint::getMac)
+                .collect(Collectors.toSet());
+        Map<String, Integer> userSignals = request.getSignals().stream()
+                .collect(Collectors.toMap(SignalRequest::getMac, SignalRequest::getRssi));
+        // 노드들
+        List<Node> nodes = nodeRepository.findAll(request.getBuildingId(), ROAD);
+
+        Node minNode = null;
+        double minVal = Double.MAX_VALUE;
+
+        for (Node node : nodes) {
+            double nodeScore = calculateScore(userSignals, getNodeSignals(node), runningAPs);
+            if (minVal > nodeScore) {
+                minNode = node;
+                minVal = nodeScore;
+            }
+        }
+        return minNode;
+    }
+
+    private double calculateScore(
+            Map<String, Integer> userSignals,
+            Map<String, Integer> nodeSignals,
+            Set<String> runningAps
+            ) {
+
+        double total_score = 0;
+        Set<String> comparingAPs = new HashSet<>();
+        comparingAPs.addAll(userSignals.keySet());
+        comparingAPs.addAll(nodeSignals.keySet());
+        comparingAPs.retainAll(runningAps);
+
+        for (String AP : comparingAPs) {
+            double score = userSignals.getOrDefault(AP, 0) - nodeSignals.getOrDefault(AP, 0);
+            total_score += score * score;
+        }
+        return Math.sqrt(total_score);
+    }
+
+    private Map<String, Integer> getNodeSignals(Node node) {
+        Map<String, Integer> nodeSignals = new HashMap<>();
+        for (Fingerprint fingerprint : node.getFingerprints()) {
+            nodeSignals.put(fingerprint.getAccessPoint().getMac(), fingerprint.getRssi());
+        }
+        return nodeSignals;
+    }
+
+
     /**
      * 건물 ID와 받은 신호세기목록을 바탕으로 현재위치와 가장 가까운 노드가 어떤 노드인지 판별
      * @param request : 건물 ID, 신호세기 목록
@@ -119,7 +191,7 @@ public class NodeServiceImpl implements NodeService {
     public Node findPosition(NodePositionRequest request) {
         // 먼저 건물에서 사용할 AP 목록 확보
         List<AccessPoint> runningAPs = accessPointRepository.findAll(request.getBuildingId(), RUNNING);
-        List<Node> nodes = nodeRepository.findAll(request.getBuildingId());
+        List<Node> nodes = nodeRepository.findAll(request.getBuildingId(), ROAD);
 
         Node minNode = null;
         double minVal = Double.MAX_VALUE;
