@@ -5,7 +5,6 @@ import com.koreatech.hangill.domain.Edge;
 import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.*;
-import com.koreatech.hangill.exception.BuildingNotFoundException;
 import com.koreatech.hangill.exception.CannotDeleteNodeException;
 import com.koreatech.hangill.exception.EdgeNotFoundException;
 import com.koreatech.hangill.repository.BuildingRepository;

@@ -7,7 +7,6 @@ import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.BuildFingerprintRequest;
 import com.koreatech.hangill.dto.request.NodePositionRequest;
 import com.koreatech.hangill.dto.request.SignalRequest;
-import com.koreatech.hangill.dto.response.FingerprintResponse;
 import com.koreatech.hangill.exception.NodeNotFoundException;
 import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.koreatech.hangill.domain.OperationStatus.*;
 
