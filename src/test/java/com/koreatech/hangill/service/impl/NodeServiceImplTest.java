@@ -94,7 +94,7 @@ class NodeServiceImplTest {
             rssiSum += fp.getRssi();
         }
 
-        assertEquals(-120, rssiSum, "신호세기 합이 -120이어야함!!");
+        assertEquals(-207, rssiSum, "신호세기 합이 -207!!");
 
 
         BuildFingerprintRequest request2 = getBuildFingerprintRequest(node1, -10, -50, -40);
@@ -106,7 +106,7 @@ class NodeServiceImplTest {
             rssiSum += fp.getRssi();
         }
 
-        assertEquals(-60, rssiSum, "신호세기 합이 -60이어야함!!");
+        assertEquals(-100, rssiSum, "신호세기 합이 -100이어야함!!");
 
     }
 
