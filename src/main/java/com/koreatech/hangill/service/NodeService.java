@@ -12,9 +12,10 @@ import java.util.List;
 public interface NodeService {
     void validateDuplicatedNode(NodeSearch nodeSearch);
     void buildFingerPrint(BuildFingerprintRequest request);
+    void buildAccessPointAndFingerPrint(BuildFingerprintRequest request);
     Node findOne(NodeSearch nodeSearch);
-
     List<Fingerprint> fingerprints(Long nodeId);
     Node findPosition(NodePositionRequest request);
+    Node findPositionV2(NodePositionRequest request);
 
 }

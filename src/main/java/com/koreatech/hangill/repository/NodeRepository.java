@@ -1,6 +1,7 @@
 package com.koreatech.hangill.repository;
 
 import com.koreatech.hangill.domain.Node;
+import com.koreatech.hangill.domain.NodeType;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.exception.NodeNotFoundException;
 import jakarta.persistence.EntityManager;
@@ -65,18 +66,19 @@ public class NodeRepository {
     }
 
     // 페치조인 최적화
-    public List<Node> findAll(Long buildingId) {
+    public List<Node> findAll(Long buildingId, NodeType type) {
         String query = """
                 SELECT DISTINCT n
                 FROM Node n JOIN FETCH n.fingerprints f
                             JOIN FETCH f.accessPoint a
                             JOIN FETCH n.building b
                 WHERE b.id = :buildingId
-                
+                    AND n.type = :type
                 """;
 
         return em.createQuery(query, Node.class)
                 .setParameter("buildingId", buildingId)
+                .setParameter("type", type)
                 .getResultList();
     }
 
