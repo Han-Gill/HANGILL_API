@@ -2,6 +2,7 @@ package com.koreatech.hangill.repository;
 
 import com.koreatech.hangill.domain.AccessPoint;
 import com.koreatech.hangill.domain.OperationStatus;
+import com.koreatech.hangill.exception.AccessPointNotFoundException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -69,6 +70,7 @@ public class AccessPointRepository {
                 .setParameter("mac", mac)
                 .getResultList();
     }
+
 
     public List<AccessPoint> findAll(String ssid, Long buildingId) {
         String query = """

@@ -7,9 +7,11 @@ import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.BuildFingerprintRequest;
 import com.koreatech.hangill.dto.request.NodePositionRequest;
 import com.koreatech.hangill.dto.request.SignalRequest;
+import com.koreatech.hangill.exception.AccessPointNotFoundException;
 import com.koreatech.hangill.exception.NodeNotFoundException;
 import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
+import com.koreatech.hangill.service.AccessPointService;
 import com.koreatech.hangill.service.NodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import static com.koreatech.hangill.domain.OperationStatus.*;
 public class NodeServiceImpl implements NodeService {
     private final NodeRepository nodeRepository;
     private final AccessPointRepository accessPointRepository;
+    private final AccessPointService accessPointService;
 
     /**
      * 중복 노드 검증
@@ -72,27 +75,32 @@ public class NodeServiceImpl implements NodeService {
      * Node의 Fingerprint를 구축하는 메소드
      *
      * @param request : 노드 ID, wifi 신호목록
-     *                1. AP filtering : 해당 건물에 있는 가동중인 AP들로 필터링
-     *                2. node의 Fingerprint로 추가
+     *                node의 Fingerprint로 추가
      * 효율성 고려하지 않은 코드임. 추후 최적화 고려 필요
      */
     public void buildFingerPrint(BuildFingerprintRequest request) {
         Node node = nodeRepository.findOne(request.getNodeId());
         List<Fingerprint> fingerprints = new ArrayList<>();
         for (SignalRequest signal : request.getSignals()) {
-            // 해당 건물의 해당 mac 주소를 가진 운용중인 AP를 찾기
-            List<AccessPoint> accessPoints = accessPointRepository.findAll(node.getBuilding().getId(), signal.getMac(), RUNNING);
-            // 없다면 고려 X
+            List<AccessPoint> accessPoints = accessPointRepository.findAll(signal.getMac());
+            // DB에 저장되어 있지 않은 AP로 부터 받은 신호는 무시.
             if (accessPoints.size() == 0) continue;
-
             fingerprints.add(new Fingerprint(
                     accessPoints.get(0),
                     signal.getRssi(),
                     LocalDateTime.now()
             ));
         }
-
         node.buildFingerprints(fingerprints);
+    }
+
+    /**
+     * 받은 신호들로부터 AccessPoint들을 모두 저장한 후 Fingerprint저장.
+     * @param request
+     */
+    public void buildAccessPointAndFingerPrint(BuildFingerprintRequest request) {
+        accessPointService.saveAllBySignals(request);
+        buildFingerPrint(request);
     }
 
     /**
