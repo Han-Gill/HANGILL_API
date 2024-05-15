@@ -34,7 +34,7 @@ public class NodeManagingController implements NodeManagingApi {
     @PostMapping("/api/v1/admin/node/fingerprint")
     public ResponseEntity<Void> buildFingerprint(@RequestBody @Valid BuildFingerprintRequest request) {
         log.info(request.toString());
-        nodeService.buildFingerPrint(request);
+        nodeService.buildAccessPointAndFingerPrint(request);
         return ResponseEntity.ok().build();
     }
 
@@ -71,7 +71,7 @@ public class NodeManagingController implements NodeManagingApi {
 
     @PostMapping("api/v1/admin/node/position")
     public ResponseEntity<NodePositionResponse> findPosition(@RequestBody @Valid NodePositionRequest request) {
-        Node findNode = nodeService.findPosition(request);
+        Node findNode = nodeService.findPositionV2(request);
         return ResponseEntity.ok().body(new NodePositionResponse(findNode));
     }
 

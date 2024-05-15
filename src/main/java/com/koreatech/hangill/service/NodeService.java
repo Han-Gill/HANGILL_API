@@ -16,5 +16,6 @@ public interface NodeService {
     Node findOne(NodeSearch nodeSearch);
     List<Fingerprint> fingerprints(Long nodeId);
     Node findPosition(NodePositionRequest request);
+    Node findPositionV2(NodePositionRequest request);
 
 }
