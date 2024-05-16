@@ -194,7 +194,7 @@ class NodeServiceImplTest {
         userSignals.add(new SignalRequest("E", "E", -52));
         userSignals.add(new SignalRequest("F", "F", -52));
         userSignals.add(new SignalRequest("G", "G", -52));
-        Node searchNode = nodeService.findPositionV2(new NodePositionRequest(buildingId, userSignals));
+        Node searchNode = nodeService.findPosition(new NodePositionRequest(buildingId, userSignals));
         //then
         assertEquals(node3, searchNode);
     }

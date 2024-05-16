@@ -31,16 +31,9 @@ public class BuildingController implements BuildingApi {
             return ResponseEntity.ok().body(new NodeDtosResponse(nodeDtos));
     }
 
-    @GetMapping("/api/v1/building/path/{buildingId}/{startNodeId}/{endNodeId}")
-    public ResponseEntity<ShortestPathResponse> findPath(
-            @PathVariable Long buildingId,
-            @PathVariable Long startNodeId,
-            @PathVariable Long endNodeId) {
-            ShortestPathResponse path = buildingService.findPath(
-                    new ShortestPathRequest(buildingId, startNodeId, endNodeId)
-            );
+    @PostMapping("/api/v1/building/path")
+    public ResponseEntity<ShortestPathResponse> findPath(@RequestBody @Valid ShortestPathRequest request) {
+            ShortestPathResponse path = buildingService.findPath(request);
             return ResponseEntity.ok().body(path);
-
-
     }
 }
