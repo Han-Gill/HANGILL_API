@@ -12,7 +12,10 @@ import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
 import com.koreatech.hangill.service.AccessPointService;
 import com.koreatech.hangill.service.NodeService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 import static com.koreatech.hangill.domain.NodeType.*;
 import static com.koreatech.hangill.domain.OperationStatus.*;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -150,7 +154,25 @@ public class NodeServiceImpl implements NodeService {
                 minVal = nodeScore;
             }
         }
+
+        loggingSignal(request, minNode, runningAPs);
         return minNode;
+    }
+
+    private void loggingSignal(NodePositionRequest request, Node node, Set<String> runningAPs) {
+        StringBuilder logging = new StringBuilder();
+        logging.append("\n==========================User Info==========================").append("\n");
+        for (SignalRequest signal : request.getSignals()) {
+            if (runningAPs.contains(signal.getMac())) logging.append(signal).append("\n");
+        }
+
+        logging.append(String.format("==========================Node %d floor %d==========================", node.getNumber(), node.getFloor())).append("\n");
+        for (Fingerprint fingerprint : node.getFingerprints()) {
+            if (runningAPs.contains(fingerprint.getAccessPoint().getMac())) logging.append("ssid : ").append(fingerprint.getAccessPoint().getSsid()).append(" ")
+                    .append("mac : ").append(fingerprint.getAccessPoint().getMac()).append(" ")
+                    .append("rssi : ").append(fingerprint.getRssi()).append(" \n");
+        }
+        log.info("{}", logging);
     }
 
     private double calculateScore(
@@ -189,12 +211,55 @@ public class NodeServiceImpl implements NodeService {
      */
     @Transactional(readOnly = true)
     public Node findPosition(NodePositionRequest request) {
+        return K_NearestNeighbor(request);
+    }
+
+
+    @Data
+    @AllArgsConstructor
+    class Position {
+        private Node node;
+        private double weight;
+    }
+    private Node K_NearestNeighbor(NodePositionRequest request) {
         // 먼저 건물에서 사용할 AP 목록 확보
         List<AccessPoint> runningAPs = accessPointRepository.findAll(request.getBuildingId(), RUNNING);
         List<Node> nodes = nodeRepository.findAll(request.getBuildingId(), ROAD);
 
-        Node minNode = null;
+        Queue<Position> queue = new PriorityQueue<>(new Comparator<Position>() {
+            @Override
+            public int compare(Position o1, Position o2) {
+                return (int)(Math.round(o1.weight) - Math.round(o2.weight));
+            }
+        });
+
+        // 각 노드에 대해 차이값 계산
+        for (Node node : nodes) {
+            Map<String, Integer> diff = buildDiff(runningAPs);
+            double nodeScore = calculateWeight(diff, node, request.getSignals());
+            queue.add(new Position(node, nodeScore));
+        }
+
+        assert queue.peek() != null;
+        Node minNode = queue.peek().getNode();
+        int k = 5;
+        for (int i = 0; i < k; i ++) {
+            Position pos = queue.poll();
+            if (pos == null) continue;
+            log.info("\n<<<<<<<<<<<<<<<<<{}>>>>>>>>>>>>>>>>>>",
+                    String.format("%d 번째로 선택된 노드, 가중치 : %f", i, pos.weight));
+            loggingSignal(request, pos.getNode(), runningAPs.stream().map(AccessPoint::getMac).collect(Collectors.toSet()));
+        }
+        return minNode;
+    }
+
+    private Node NearestNeighbor(NodePositionRequest request) {
+        // 먼저 건물에서 사용할 AP 목록 확보
+        List<AccessPoint> runningAPs = accessPointRepository.findAll(request.getBuildingId(), RUNNING);
+        List<Node> nodes = nodeRepository.findAll(request.getBuildingId(), ROAD);
+
         double minVal = Double.MAX_VALUE;
+        Node minNode = null;
 
         // 각 노드에 대해 차이값 계산
         for (Node node : nodes) {
@@ -205,6 +270,7 @@ public class NodeServiceImpl implements NodeService {
                 minVal = nodeScore;
             }
         }
+        loggingSignal(request, minNode, runningAPs.stream().map(AccessPoint::getMac).collect(Collectors.toSet()));
         return minNode;
     }
     private Map<String, Integer> buildDiff(List<AccessPoint> aps) {

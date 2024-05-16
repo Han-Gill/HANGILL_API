@@ -6,6 +6,7 @@ import com.koreatech.hangill.domain.Node;
 import com.koreatech.hangill.domain.NodeType;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.*;
+import com.koreatech.hangill.dto.response.NodePositionResponse;
 import com.koreatech.hangill.dto.response.ShortestPathResponse;
 import com.koreatech.hangill.repository.BuildingRepository;
 import com.koreatech.hangill.repository.EdgeRepository;
@@ -105,12 +106,15 @@ class BuildingServiceImplTest {
         //when
         ShortestPathResponse shortestPathResponse = buildingService.findPath(new ShortestPathRequest(
                 buildingId,
-                startNode.getId(), endNode.getId()
+                startNode.getNumber(),
+                startNode.getFloor(),
+                endNode.getNumber(),
+                endNode.getFloor()
         ));
-        List<Long> pathLabel = new ArrayList<>();
-        pathLabel.add(startNode.getId());
-        pathLabel.add(node.getId());
-        pathLabel.add(endNode.getId());
+        List<NodePositionResponse> pathLabel = new ArrayList<>();
+        pathLabel.add(new NodePositionResponse(startNode));
+        pathLabel.add(new NodePositionResponse(node));
+        pathLabel.add(new NodePositionResponse(endNode));
 
         //then
         assertEquals(pathLabel, shortestPathResponse.getPath());
