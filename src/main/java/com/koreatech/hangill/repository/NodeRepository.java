@@ -44,6 +44,24 @@ public class NodeRepository {
                 .setParameter("floor", nodeSearch.getFloor())
                 .getResultList();
     }
+
+    public List<Node> findAll(Long buildingId, String nodeName) {
+        if (nodeName == null) nodeName = "";
+        String query = """
+                SELECT n
+                FROM Node n JOIN n.building b
+                        ON b.id = :buildingId
+                        AND n.type = "ROOM"
+                WHERE n.name LIKE CONCAT('%', :nodeName, '%')
+                """;
+        return em.createQuery(query, Node.class)
+                .setParameter("buildingId", buildingId)
+                .setParameter("nodeName", nodeName)
+                .getResultList();
+    }
+
+
+
     public Node findOne(NodeSearch nodeSearch) {
     String query = """
             SELECT n

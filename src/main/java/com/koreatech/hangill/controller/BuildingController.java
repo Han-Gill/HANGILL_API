@@ -6,7 +6,6 @@ import com.koreatech.hangill.domain.NodeType;
 import com.koreatech.hangill.dto.NodeDto;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.ShortestPathRequest;
-import com.koreatech.hangill.dto.request.UpdateBuildingRequest;
 import com.koreatech.hangill.dto.response.NodeDtosResponse;
 import com.koreatech.hangill.dto.response.ShortestPathResponse;
 import com.koreatech.hangill.repository.BuildingRepository;
