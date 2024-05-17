@@ -14,5 +14,5 @@ public interface BuildingService {
     List<Edge> findAllEdges(Long id);
     List<Node> findAllNodesByType(Long id, NodeType type);
     Map<Long, List<Long[]>> findIdGraph(Long id);
-    ShortestPathResponse findPath(ShortestPathRequest request);
+    ShortestPathResponse findPath(Long buildingId, Long startNodeId, Long endNodeId);
 }

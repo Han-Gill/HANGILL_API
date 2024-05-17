@@ -7,6 +7,8 @@ import com.koreatech.hangill.domain.NodeType;
 import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.ShortestPathRequest;
 import com.koreatech.hangill.dto.response.NodePositionResponse;
+import com.koreatech.hangill.dto.response.NodeResponse;
+import com.koreatech.hangill.dto.response.NodesResponse;
 import com.koreatech.hangill.dto.response.ShortestPathResponse;
 import com.koreatech.hangill.repository.BuildingRepository;
 import com.koreatech.hangill.repository.EdgeRepository;
@@ -82,31 +84,20 @@ public class BuildingServiceImpl implements BuildingService {
     /**
      * 최단 경로 알고리즘.
      *
-     * @param request : 건물 id, 출발 노드 정보(번호, 층), 도착 노드 정보(번호, 층)
+     * @param : 건물 id, 출발 노드 ID, 도착 노드 ID
      * @return 최단 경로와 거리를 담은 객체
      */
-    public ShortestPathResponse findPath(ShortestPathRequest request) {
-        Long startNodeId = nodeRepository.findOne(
-                new NodeSearch(
-                        request.getBuildingId(),
-                        request.getStartNodeNumber(),
-                        request.getStartNodeFloor())
-        ).getId();
-        Long endNodeId = nodeRepository.findOne(
-                new NodeSearch(
-                        request.getBuildingId(),
-                        request.getEndNodeNumber(),
-                        request.getEndNodeFloor())
-        ).getId();
+    public ShortestPathResponse findPath(Long buildingId, Long startNodeId, Long endNodeId) {
+
 
         Long INF = Long.MAX_VALUE;
-        List<Node> nodes = buildingRepository.findOne(request.getBuildingId()).getNodes();
+        List<Node> nodes = buildingRepository.findOne(buildingId).getNodes();
         Map<Long, Long> distance = new HashMap<>();
         Map<Long, Long> path = new HashMap<>();
         for (Node node : nodes) {
             distance.put(node.getId(), INF);
         }
-        Map<Long, List<Long[]>> graph = findIdGraph(request.getBuildingId());
+        Map<Long, List<Long[]>> graph = findIdGraph(buildingId);
 
         distance.put(startNodeId, 0L);
         Queue<Long[]> queue = new PriorityQueue<>((a, b) -> Long.compare(a[1], b[1]));
@@ -126,13 +117,11 @@ public class BuildingServiceImpl implements BuildingService {
                 }
             }
         }
-
-
-        List<NodePositionResponse> collect = Arrays.stream(reconstructPath(startNodeId, endNodeId, path)
+        List<NodeResponse> collect = Arrays.stream(reconstructPath(startNodeId, endNodeId, path)
                 .split(" "))
                 .mapToLong(Long::parseLong)
                 .mapToObj(nodeRepository::findOne)
-                .map(NodePositionResponse::new)
+                .map(NodeResponse::new)
                 .collect(Collectors.toList());
 
         return new ShortestPathResponse(distance.get(endNodeId), collect);

@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Data
 @AllArgsConstructor
@@ -20,5 +18,5 @@ public class ShortestPathResponse {
     @Schema(
             description = "경로상에서 지나는 노드의 순서"
     )
-    private List<NodePositionResponse> path;
+    private List<NodeResponse> path;
 }
