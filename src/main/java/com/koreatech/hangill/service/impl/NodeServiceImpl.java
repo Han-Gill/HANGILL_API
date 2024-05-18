@@ -35,6 +35,8 @@ public class NodeServiceImpl implements NodeService {
     private final AccessPointRepository accessPointRepository;
     private final AccessPointService accessPointService;
 
+    private final int RSSI_OFFSET = 100;
+
     /**
      * 중복 노드 검증
      *
@@ -188,7 +190,10 @@ public class NodeServiceImpl implements NodeService {
         comparingAPs.retainAll(runningAps);
 
         for (String AP : comparingAPs) {
-            double score = userSignals.getOrDefault(AP, 0) - nodeSignals.getOrDefault(AP, 0);
+//            double score = (userSignals.getOrDefault(AP, 0) + RSSI_OFFSET) - (nodeSignals.getOrDefault(AP, 0) + RSSI_OFFSET);
+            double score = 0;
+            if (userSignals.containsKey(AP)) score += (userSignals.get(AP) + RSSI_OFFSET);
+            if (nodeSignals.containsKey(AP)) score -= (nodeSignals.get(AP) + RSSI_OFFSET);
             total_score += score * score;
         }
         return Math.sqrt(total_score);
@@ -284,11 +289,11 @@ public class NodeServiceImpl implements NodeService {
         List<Fingerprint> fingerprints = node.getFingerprints();
         for (Fingerprint fingerprint : fingerprints) {
             String mac = fingerprint.getAccessPoint().getMac();
-            if (diff.containsKey(mac)) diff.put(mac, diff.get(mac) + fingerprint.getRssi());
+            if (diff.containsKey(mac)) diff.put(mac, diff.get(mac) + (fingerprint.getRssi() + RSSI_OFFSET));
         }
         for (SignalRequest signal : signals) {
             String mac = signal.getMac();
-            if (diff.containsKey(mac)) diff.put(mac, diff.get(mac) - signal.getRssi());
+            if (diff.containsKey(mac)) diff.put(mac, diff.get(mac) - (signal.getRssi() + RSSI_OFFSET));
         }
 
         int total_score = 0;
