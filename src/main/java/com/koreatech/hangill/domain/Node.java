@@ -37,6 +37,11 @@ public class Node {
         this.floor = floor;
     }
 
+    public void updateCoordinates(Integer y, Integer x) {
+        this.y = y;
+        this.x = x;
+    }
+
     @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "node_id")
     private Long id;
