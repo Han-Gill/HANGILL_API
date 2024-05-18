@@ -56,6 +56,10 @@ public class Node {
     @JoinColumn(name = "building_id")
     private Building building;
 
+    private Integer x;
+
+    private Integer y;
+
     @OneToMany(mappedBy = "node", cascade = ALL, orphanRemoval = true)
     private List<Fingerprint> fingerprints = new ArrayList<>();
 
