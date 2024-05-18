@@ -54,10 +54,28 @@ class InputServiceTest {
     @Test
     @Rollback(value = false)
     public void KNN_노드_추가() throws Exception {
-//        //given
-//        for (int num = 500; num <= 535; num++) {
+        // 4층
+//        for (int num = 500; num <= 533; num++) {
 //            buildingService.addNode(new AddNodeToBuildingRequest(1L, new CreateNodeRequest(
 //                    num, "복도", "복도", NodeType.ROAD, 4
+//            )));
+//        }
+//        // 3층
+//        for (int num = 500; num <= 531; num++) {
+//            buildingService.addNode(new AddNodeToBuildingRequest(1L, new CreateNodeRequest(
+//                    num, "복도", "복도", NodeType.ROAD, 3
+//            )));
+//        }
+//        // 2층
+//        for (int num = 500; num <= 539; num++) {
+//            buildingService.addNode(new AddNodeToBuildingRequest(1L, new CreateNodeRequest(
+//                    num, "복도", "복도", NodeType.ROAD, 2
+//            )));
+//        }
+//        // 1층
+//        for (int num = 500; num <= 541; num++) {
+//            buildingService.addNode(new AddNodeToBuildingRequest(1L, new CreateNodeRequest(
+//                    num, "복도", "복도", NodeType.ROAD, 1
 //            )));
 //        }
 //        //when
