@@ -14,6 +14,7 @@ import com.koreatech.hangill.dto.response.FingerprintsResponse;
 import com.koreatech.hangill.dto.response.NodeDetailResponse;
 import com.koreatech.hangill.dto.response.NodePositionResponse;
 import com.koreatech.hangill.repository.BuildingRepository;
+import com.koreatech.hangill.service.FindPositionService;
 import com.koreatech.hangill.service.NodeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import java.util.List;
 public class NodeManagingController implements NodeManagingApi {
     private final NodeService nodeService;
     private final BuildingRepository buildingRepository;
+    private final FindPositionService findPositionService;
 
     @PostMapping("/api/v1/admin/node/fingerprint")
     public ResponseEntity<Void> buildFingerprint(@RequestBody @Valid BuildFingerprintRequest request) {
@@ -71,7 +73,7 @@ public class NodeManagingController implements NodeManagingApi {
 
     @PostMapping("/api/v1/admin/node/position")
     public ResponseEntity<NodePositionResponse> findPosition(@RequestBody @Valid NodePositionRequest request) {
-        Node findNode = nodeService.findPosition(request);
+        Node findNode = findPositionService.findPosition(request);
         log.info("responseNode : {}", findNode.getNumber() + "번호 " + findNode.getFloor() + "층");
         return ResponseEntity.ok().body(new NodePositionResponse(findNode));
     }

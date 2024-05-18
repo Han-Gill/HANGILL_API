@@ -15,7 +15,7 @@ public interface NodeService {
     void buildAccessPointAndFingerPrint(BuildFingerprintRequest request);
     Node findOne(NodeSearch nodeSearch);
     List<Fingerprint> fingerprints(Long nodeId);
-    Node findPosition(NodePositionRequest request);
-    Node findPositionV2(NodePositionRequest request);
+//    Node findPosition(NodePositionRequest request);
+//    Node findPositionV2(NodePositionRequest request);
 
 }
