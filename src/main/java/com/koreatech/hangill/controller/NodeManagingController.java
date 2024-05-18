@@ -34,7 +34,7 @@ public class NodeManagingController implements NodeManagingApi {
     @PostMapping("/api/v1/admin/node/fingerprint")
     public ResponseEntity<Void> buildFingerprint(@RequestBody @Valid BuildFingerprintRequest request) {
         log.info(request.toString());
-        nodeService.buildAccessPointAndFingerPrint(request);
+        nodeService.buildFingerPrint(request);
         return ResponseEntity.ok().build();
     }
 
