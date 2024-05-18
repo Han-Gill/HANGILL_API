@@ -155,6 +155,10 @@ class NodeServiceImplTest {
         Node node2 = nodeService.findOne(new NodeSearch(buildingId, 2, 1));
         Node node3 = nodeService.findOne(new NodeSearch(buildingId, 3, 1));
 
+        node1.updateCoordinates(4000, 4000);
+        node2.updateCoordinates(2000, 2000);
+        node3.updateCoordinates(3000, 3000);
+
 
         // 노드 1의 핑거프린트
         List<SignalRequest> node1Signals = new ArrayList<>();
