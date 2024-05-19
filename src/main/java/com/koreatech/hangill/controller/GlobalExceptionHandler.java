@@ -35,7 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request
     ) {
-
+        log.warn("잘못된 요청 매개변수 에러!\n {}, \n {}", ex.getMessage(), ex.getStackTrace());
         // BindingResult 로부터 에러메시지들 뽑아내기
         String errorMessages = ex.getBindingResult().getAllErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -63,6 +63,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             DataNotFoundException ex,
             HttpServletRequest request
     ){
+        log.warn("데이터 찾을 수 없음 에러 발생!!\n {}, \n {}", ex.getMessage(), ex.getStackTrace());
         return ResponseEntity.status(NOT_FOUND).body(ErrorResponse.from(
                 ex.getMessage()
         ));
@@ -73,7 +74,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             IllegalArgumentException ex,
             HttpServletRequest request
     ) {
-        log.warn("잘못된 매개변수 예외 발생 \n <stackTrace>\n{}",
+        log.warn("잘못된 매개변수 예외 발생! \n <stackTrace>\n{}",
                 Stream.of(ex.getStackTrace())
                         .map(String::valueOf).map(a -> a + "\n")
                         .toList());
