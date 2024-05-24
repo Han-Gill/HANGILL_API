@@ -7,6 +7,7 @@ import com.koreatech.hangill.dto.NodeSearch;
 import com.koreatech.hangill.dto.request.BuildFingerprintRequest;
 import com.koreatech.hangill.dto.request.NodePositionRequest;
 import com.koreatech.hangill.dto.request.SignalRequest;
+import com.koreatech.hangill.exception.NodeDuplicatedException;
 import com.koreatech.hangill.exception.NodeNotFoundException;
 import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
@@ -46,7 +47,7 @@ public class NodeServiceImpl implements NodeService {
     @Transactional(readOnly = true)
     public void validateDuplicatedNode(NodeSearch nodeSearch) {
         if (nodeRepository.findAll(nodeSearch).size() > 0)
-            throw new IllegalArgumentException("같은 건물의 같은 층에 해당 번호의 노드가 존재합니다.");
+            throw NodeDuplicatedException.withDetail(nodeSearch.getFloor() + "층 " + nodeSearch.getNumber() +"번 ");
     }
 
     /**

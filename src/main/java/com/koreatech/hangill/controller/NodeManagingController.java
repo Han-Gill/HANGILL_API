@@ -73,8 +73,11 @@ public class NodeManagingController implements NodeManagingApi {
 
     @PostMapping("/api/v1/admin/node/position")
     public ResponseEntity<NodePositionResponse> findPosition(@RequestBody @Valid NodePositionRequest request) {
+        long before = System.currentTimeMillis();
         Node findNode = findPositionService.findPosition(request);
         log.info("responseNode : {}", findNode.getNumber() + "번호 " + findNode.getFloor() + "층");
+        long end = System.currentTimeMillis();
+        log.info("걸린시간 : {}", end - before);
         return ResponseEntity.ok().body(new NodePositionResponse(findNode));
     }
 }
