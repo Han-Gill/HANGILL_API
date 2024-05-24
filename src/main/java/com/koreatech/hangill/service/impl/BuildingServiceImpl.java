@@ -88,8 +88,6 @@ public class BuildingServiceImpl implements BuildingService {
      * @return 최단 경로와 거리를 담은 객체
      */
     public ShortestPathResponse findPath(Long buildingId, Long startNodeId, Long endNodeId) {
-
-
         Long INF = Long.MAX_VALUE;
         List<Node> nodes = buildingRepository.findOne(buildingId).getNodes();
         Map<Long, Long> distance = new HashMap<>();
@@ -123,6 +121,16 @@ public class BuildingServiceImpl implements BuildingService {
                 .mapToObj(nodeRepository::findOne)
                 .map(NodeResponse::new)
                 .collect(Collectors.toList());
+
+
+        // 출발지, 도착지 제외(ROOM에서 시작, ROOM에서 끝 -> DOOR에서 시작, DOOR에서 끝)
+        Node startNode = nodeRepository.findOne(startNodeId);
+        Node endNode = nodeRepository.findOne(endNodeId);
+
+        if (collect.size() >= 2 && (startNode.getType() == NodeType.ROOM && endNode.getType() == NodeType.ROOM)) {
+            collect.remove(0);
+            collect.remove(collect.size() - 1);
+        }
 
         return new ShortestPathResponse(distance.get(endNodeId), collect);
     }

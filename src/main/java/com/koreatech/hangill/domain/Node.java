@@ -42,6 +42,7 @@ public class Node {
         this.x = x;
     }
 
+
     @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "node_id")
     private Long id;
