@@ -190,27 +190,27 @@ class InputServiceTest {
     @Rollback(value = false)
     public void KNN_계단_노드에_좌표_추가() throws Exception {
         //given
-        String path = "/Users/jeongseong-o/2024-1/hanGill/map/node_coordinates";
-        BufferedReader br = new BufferedReader(new FileReader(path + "/gong2_1_nodes.txt"));
-        String str;
-        while ((str = br.readLine()) != null) {
-            String[] tmp = str.split(", ");
-            Long buildingId = 1L;
-            Integer floor = 1;
-            Integer number = Integer.parseInt(tmp[0]);
-            Integer y = Integer.parseInt(tmp[1]);
-            Integer x = Integer.parseInt(tmp[2]);
-            Node node = null;
-            try {
-                node = nodeRepository.findOne(new NodeSearch(buildingId, number, floor));
-            } catch (EmptyResultDataAccessException ex) {
-                System.out.println("없는 노드 : " + floor + "층 " + number + "번");
-                continue;
-            }
-            if (node.getType() != STAIR) continue;
-            node.updateCoordinates(y, x);
-        }
-        br.close();
+//        String path = "/Users/jeongseong-o/2024-1/hanGill/map/node_coordinates";
+//        BufferedReader br = new BufferedReader(new FileReader(path + "/gong2_1_nodes.txt"));
+//        String str;
+//        while ((str = br.readLine()) != null) {
+//            String[] tmp = str.split(", ");
+//            Long buildingId = 1L;
+//            Integer floor = 1;
+//            Integer number = Integer.parseInt(tmp[0]);
+//            Integer y = Integer.parseInt(tmp[1]);
+//            Integer x = Integer.parseInt(tmp[2]);
+//            Node node = null;
+//            try {
+//                node = nodeRepository.findOne(new NodeSearch(buildingId, number, floor));
+//            } catch (EmptyResultDataAccessException ex) {
+//                System.out.println("없는 노드 : " + floor + "층 " + number + "번");
+//                continue;
+//            }
+//            if (node.getType() != STAIR) continue;
+//            node.updateCoordinates(y, x);
+//        }
+//        br.close();
 
         //when
 
