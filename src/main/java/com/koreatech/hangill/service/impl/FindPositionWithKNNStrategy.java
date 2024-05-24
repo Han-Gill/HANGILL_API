@@ -2,6 +2,7 @@ package com.koreatech.hangill.service.impl;
 
 import com.koreatech.hangill.domain.AccessPoint;
 import com.koreatech.hangill.domain.Node;
+import com.koreatech.hangill.domain.NodeType;
 import com.koreatech.hangill.dto.request.NodePositionRequest;
 import com.koreatech.hangill.repository.AccessPointRepository;
 import com.koreatech.hangill.repository.NodeRepository;
@@ -15,6 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.koreatech.hangill.domain.NodeType.ROAD;
+import static com.koreatech.hangill.domain.NodeType.STAIR;
 import static com.koreatech.hangill.domain.OperationStatus.RUNNING;
 
 @Service
@@ -35,7 +37,13 @@ public class FindPositionWithKNNStrategy extends FindPositionService {
     private Node K_NearestNeighbor(NodePositionRequest request) {
         // 먼저 건물에서 사용할 AP 목록 확보
         List<AccessPoint> runningAPs = accessPointRepository.findAll(request.getBuildingId(), RUNNING);
+        // 복도와 계단에 있는 모든 노드를 가져옴.
         List<Node> nodes = nodeRepository.findAll(request.getBuildingId(), ROAD);
+        nodes.addAll(nodeRepository.findAll(request.getBuildingId(), STAIR));
+//        List<Node> nodes = nodeRepository.findAllByBuilding(request.getBuildingId())
+//                .stream()
+//                .filter(n -> n.getType() == ROAD)
+//                .toList();
 
         Queue<Position> queue = new PriorityQueue<>(new Comparator<Position>() {
             @Override
